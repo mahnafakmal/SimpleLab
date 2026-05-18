@@ -1,21 +1,31 @@
 <div id="scan" class="tab-content">
     <div class="card form-card">
-        <h3>Scan Kartu RFID User</h3>
-        <form action="/rfid/authenticate" method="POST">
+        <h3>Registrasi Barang dengan Scan RFID</h3>
+        <form action="/barang/register" method="POST">
             @csrf
             <div class="input-group">
-                <input type="text" name="card_uid" class="input-custom rfid-scan-input" placeholder="Scan UID Kartu RFID" autocomplete="off" required>
-                <select name="action" class="input-custom" required>
-                    <option value="akses">Akses Masuk Lab</option>
-                    <option value="peminjaman">Persiapan Peminjaman</option>
-                </select>
+                <input type="text" name="name" class="input-custom" placeholder="Nama Barang" required>
+                <input type="text" name="kategori" class="input-custom" placeholder="Kategori" required>
+                <input type="text" name="rfid_uid" class="input-custom rfid-scan-input" placeholder="Scan UID Tag RFID" autocomplete="off" required>
             </div>
-            <button class="btn-primary" type="submit">Autentikasi</button>
+            <button class="btn-primary" type="submit">Daftarkan Barang</button>
         </form>
     </div>
 
     <div class="card form-card">
-        <h3>Scan Tag RFID Aset</h3>
+        <h3>Scan Peminjaman Aset</h3>
+        <form action="/peminjaman/borrow" method="POST">
+            @csrf
+            <div class="input-group">
+                <input type="text" name="card_uid" class="input-custom rfid-scan-input" placeholder="Scan UID Kartu RFID User" autocomplete="off" required>
+                <input type="text" name="tag_uid" class="input-custom rfid-scan-input" placeholder="Scan UID Tag RFID Barang" autocomplete="off" required>
+            </div>
+            <button class="btn-primary" type="submit">Pinjam Aset</button>
+        </form>
+    </div>
+
+    <div class="card form-card">
+        <h3>Scan Masuk/Keluar Aset</h3>
         <form action="/rfid/track" method="POST">
             @csrf
             <div class="input-group">
@@ -30,6 +40,6 @@
     </div>
 
     <div class="note-box">
-        <p>Untuk scan RFID: klik salah satu input dan pindai tag/kartu. Jika pembaca mengirimkan Enter, formulir akan otomatis dikirim.</p>
+        <p>Untuk scan RFID: pilih field UID, pindai tag/kartu, dan jika pembaca mengirimkan Enter, formulir akan otomatis dikirim.</p>
     </div>
 </div>

@@ -31,15 +31,10 @@
         <div class="input-group">
             <input type="text" name="name" class="input-custom" placeholder="Nama Barang" required>
             <input type="text" name="kategori" class="input-custom" placeholder="Kategori" required>
-            <input type="text" name="rfid_uid" class="input-custom" placeholder="UID Tag RFID" required>
+            <input type="text" name="rfid_uid" class="input-custom rfid-scan-input" placeholder="Scan UID Tag RFID" autocomplete="off" required>
         </div>
         <button class="btn-primary" type="submit">Daftarkan Barang</button>
-    </form>
-
-    <div class="list-card">
-        <h3>Daftar Aset RFID</h3>
-        @if($tags->isEmpty())
-            <div class="empty-state">
+        <p class="hint-text">Klik field UID dan pindai tag RFID untuk melengkapi secara cepat.</p>
                 <i data-lucide="package" size="48"></i>
                 <p>Belum ada tag RFID terdaftar.</p>
             </div>

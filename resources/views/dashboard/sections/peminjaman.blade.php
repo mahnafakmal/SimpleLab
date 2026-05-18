@@ -3,10 +3,11 @@
         @csrf
         <h3>Proses Peminjaman Aset</h3>
         <div class="input-group">
-            <input type="text" name="card_uid" class="input-custom" placeholder="UID Kartu RFID User" required>
-            <input type="text" name="tag_uid" class="input-custom" placeholder="UID Tag RFID Barang" required>
+            <input type="text" name="card_uid" class="input-custom rfid-scan-input" placeholder="Scan UID Kartu RFID User" autocomplete="off" required>
+            <input type="text" name="tag_uid" class="input-custom rfid-scan-input" placeholder="Scan UID Tag RFID Barang" autocomplete="off" required>
         </div>
         <button class="btn-primary" type="submit">Pinjam Aset</button>
+        <p class="hint-text">Klik field UID lalu pindai kartu/tag RFID untuk memproses pinjaman.</p>
     </form>
 
     <div class="list-card">
