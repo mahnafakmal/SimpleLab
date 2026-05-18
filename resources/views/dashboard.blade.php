@@ -51,11 +51,12 @@
         </div>
 
         <div class="tabs-nav">
-            <div class="tab-item active" onclick="switchTab('ringkasan')">Ringkasan</div>
-            <div class="tab-item" onclick="switchTab('peralatan')">Peralatan</div>
-            <div class="tab-item" onclick="switchTab('peminjaman')">Peminjaman</div>
-            <div class="tab-item" onclick="switchTab('pengguna')">Pengguna</div>
-            <div class="tab-item" onclick="switchTab('laporan')">Laporan</div>
+            <div class="tab-item active" onclick="switchTab('ringkasan', this)">Ringkasan</div>
+            <div class="tab-item" onclick="switchTab('peralatan', this)">Peralatan</div>
+            <div class="tab-item" onclick="switchTab('peminjaman', this)">Peminjaman</div>
+            <div class="tab-item" onclick="switchTab('scan', this)">Scan RFID</div>
+            <div class="tab-item" onclick="switchTab('pengguna', this)">Pengguna</div>
+            <div class="tab-item" onclick="switchTab('laporan', this)">Laporan</div>
         </div>
 
         @if(session('success'))
@@ -68,6 +69,7 @@
         @include('dashboard.sections.ringkasan')
         @include('dashboard.sections.peralatan')
         @include('dashboard.sections.peminjaman')
+        @include('dashboard.sections.scan')
         @include('dashboard.sections.pengguna')
         @include('dashboard.sections.auto-admin')
     </main>
@@ -77,13 +79,15 @@
         lucide.createIcons();
 
         // Tab switching logic
-        function switchTab(tabId) {
+        function switchTab(tabId, tabEl) {
             // Remove active class from all tabs
             document.querySelectorAll('.tab-item').forEach(item => {
                 item.classList.remove('active');
             });
             // Add active class to clicked tab
-            event.target.classList.add('active');
+            if (tabEl) {
+                tabEl.classList.add('active');
+            }
 
             // Hide all content areas
             document.querySelectorAll('.tab-content').forEach(content => {
@@ -92,6 +96,21 @@
             // Show target content area
             document.getElementById(tabId).classList.add('active');
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.rfid-scan-input').forEach(function (input) {
+                input.addEventListener('keydown', function (event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        var form = event.target.closest('form');
+                        if (form) {
+                            form.submit();
+                        }
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>
+
