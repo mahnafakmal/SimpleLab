@@ -35,6 +35,12 @@
         </div>
         <button class="btn-primary" type="submit">Daftarkan Barang</button>
         <p class="hint-text">Klik field UID dan pindai tag RFID untuk melengkapi secara cepat.</p>
+    </form>
+
+    <div class="list-card">
+        <h3>Daftar Aset RFID</h3>
+        @if($tags->isEmpty())
+            <div class="empty-state">
                 <i data-lucide="package" size="48"></i>
                 <p>Belum ada tag RFID terdaftar.</p>
             </div>
