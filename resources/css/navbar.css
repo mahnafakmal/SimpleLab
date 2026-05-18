@@ -1,0 +1,9 @@
+.navbar {
+    @apply flex items-center justify-between p-4 bg-white dark:bg-[#161615] border-b border-[#e3e3e0] dark:border-[#3E3E3A];
+}
+.navbar a {
+    @apply text-sm font-medium text-[#1b1b18] dark:text-[#EDEDEC];
+}
+.navbar a:hover {
+    @apply underline underline-offset-4;
+}
