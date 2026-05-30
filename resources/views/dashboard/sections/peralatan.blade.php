@@ -31,7 +31,10 @@
         <div class="input-group">
             <input type="text" name="name" class="input-custom" placeholder="Nama Barang" required>
             <input type="text" name="kategori" class="input-custom" placeholder="Kategori" required>
-            <input type="text" name="rfid_uid" class="input-custom rfid-scan-input" placeholder="Scan UID Tag RFID" autocomplete="off" required>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <input type="text" name="rfid_uid" class="input-custom rfid-scan-input" placeholder="Scan UID Tag RFID" autocomplete="off" required>
+                <button type="button" class="btn-scan" style="padding:6px 10px;" onclick="focusAndNotify(this.closest('form').querySelector('[name=rfid_uid]'), 'Klik field UID lalu pindai tag RFID.')">Scan</button>
+            </div>
         </div>
         <button class="btn-primary" type="submit">Daftarkan Barang</button>
         <p class="hint-text">Klik field UID dan pindai tag RFID untuk melengkapi secara cepat.</p>

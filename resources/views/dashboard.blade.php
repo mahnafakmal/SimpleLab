@@ -110,6 +110,27 @@
                 });
             });
         });
+
+        function focusAndNotify(input, message) {
+            if (!input) {
+                return;
+            }
+            input.focus();
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            var notice = document.getElementById('scan-instruction-notice');
+            if (!notice) {
+                notice = document.createElement('div');
+                notice.id = 'scan-instruction-notice';
+                notice.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#1f2937;color:#fff;padding:12px 16px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.15);z-index:9999;max-width:320px;font-size:14px;';
+                document.body.appendChild(notice);
+            }
+            notice.textContent = message;
+            clearTimeout(notice.hideTimer);
+            notice.hideTimer = setTimeout(function () {
+                notice.remove();
+            }, 3500);
+        }
     </script>
 </body>
 </html>
