@@ -21,6 +21,20 @@
         <button class="btn-primary" type="submit">Daftarkan Kartu</button>
     </form>
 
+    <form action="{{ route('admin.users.dosen.create') }}" method="POST" class="card form-card" style="margin-top:1.25rem;">
+        @csrf
+        <h3>Buat Akun Dosen (Admin)</h3>
+        <div class="input-group">
+            <input type="text" name="name" class="input-custom" placeholder="Nama lengkap" required>
+            <input type="email" name="email" class="input-custom" placeholder="email@domain.com" required>
+        </div>
+        <div class="input-group">
+            <input type="password" name="password" class="input-custom" placeholder="Password" required>
+            <input type="password" name="password_confirmation" class="input-custom" placeholder="Konfirmasi Password" required>
+        </div>
+        <button class="btn-primary" type="submit">Buat Akun Dosen</button>
+    </form>
+
     <div class="list-card">
         <h3>Daftar Kartu RFID</h3>
         @if($cards->isEmpty())

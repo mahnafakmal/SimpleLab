@@ -26,8 +26,8 @@
             </div>
         </div>
         <div class="user-area">
-            <span class="badge-admin">{{ auth()->user() ? 'User' : 'Admin' }}</span>
-            <span class="user-email">{{ auth()->user()->email ?? 'admin@simplelab.com' }}</span>
+            <span class="badge-admin">Admin</span>
+            <span class="user-email">{{ auth()->user()->email }}</span>
             <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                 @csrf
                 <button type="submit" class="logout-btn">
@@ -51,12 +51,16 @@
         </div>
 
         <div class="tabs-nav">
+            @if(auth()->check() && auth()->user()->role === 'admin')
+                <div class="tab-item" onclick="switchTab('admin_peminjaman', this)">Kelola Peminjaman</div>
+            @endif
             <div class="tab-item active" onclick="switchTab('ringkasan', this)">Ringkasan</div>
             <div class="tab-item" onclick="switchTab('peralatan', this)">Peralatan</div>
             <div class="tab-item" onclick="switchTab('peminjaman', this)">Peminjaman</div>
             <div class="tab-item" onclick="switchTab('scan', this)">Scan RFID</div>
             <div class="tab-item" onclick="switchTab('pengguna', this)">Pengguna</div>
             <div class="tab-item" onclick="switchTab('laporan', this)">Laporan</div>
+            <div class="tab-item" onclick="switchTab('monitoring', this)">Monitoring Ruangan</div>
         </div>
 
         @if(session('success'))
@@ -71,7 +75,15 @@
         @include('dashboard.sections.peminjaman')
         @include('dashboard.sections.scan')
         @include('dashboard.sections.pengguna')
-        @include('dashboard.sections.auto-admin')
+            <div id="admin_peminjaman" class="tab-content">
+        @include('dashboard.sections.admin_peminjaman')
+    </div>
+            <div id="laporan" class="tab-content">
+        @include('dashboard.sections.laporan')
+    </div>
+            <div id="monitoring" class="tab-content">
+        @include('dashboard.sections.monitoring')
+    </div>
     </main>
 
     <script>

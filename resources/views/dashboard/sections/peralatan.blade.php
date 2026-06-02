@@ -70,4 +70,69 @@
             </div>
         @endif
     </div>
+
+    <div class="list-card" style="margin-top:1rem;">
+        <h3>Barang Tersedia</h3>
+        @if(isset($availableItems) && $availableItems->isEmpty())
+            <div class="empty-state">
+                <i data-lucide="box" size="48"></i>
+                <p>Tidak ada barang tersedia saat ini.</p>
+            </div>
+        @else
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nama Barang</th>
+                            <th>Kategori</th>
+                            <th>Kondisi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($availableItems as $item)
+                            <tr>
+                                <td>{{ $item->name }}</td>
+                                <td>{{ $item->kategori ?? '-' }}</td>
+                                <td>{{ $item->kondisi ?? '-' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
+
+    <div class="list-card" style="margin-top:1rem;">
+        <h3>Ringkasan Jumlah Per Barang</h3>
+        @if(isset($itemsSummary) && $itemsSummary->isEmpty())
+            <div class="empty-state">
+                <i data-lucide="box" size="48"></i>
+                <p>Tidak ada data barang.</p>
+            </div>
+        @else
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nama Barang</th>
+                            <th>Total</th>
+                            <th>Tersedia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($itemsSummary as $summary)
+                            @php
+                                $avail = $availableSummary->firstWhere('name', $summary->name);
+                            @endphp
+                            <tr>
+                                <td>{{ $summary->name }}</td>
+                                <td>{{ $summary->total_count }}</td>
+                                <td>{{ $avail->available_count ?? 0 }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
 </div>

@@ -17,6 +17,22 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
+    public function showLoginDosen()
+    {
+        if (Auth::check()) {
+            return redirect('/');
+        }
+        return view('auth.login-dosen');
+    }
+
+    public function showLoginMahasiswa()
+    {
+        if (Auth::check()) {
+            return redirect('/');
+        }
+        return view('auth.login-mahasiswa');
+    }
+
     public function login(Request $request)
     {
         $validated = $request->validate([
@@ -32,12 +48,50 @@ class AuthController extends Controller
         return back()->withErrors(['email' => 'Email atau password salah.'])->withInput();
     }
 
+    public function loginDosen(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email|max:255',
+            'password' => 'required|min:6',
+        ]);
+
+        if (Auth::attempt(['email' => $validated['email'], 'password' => $validated['password'], 'role' => 'dosen'])) {
+            $request->session()->regenerate();
+            return redirect('/')->with('success', 'Login dosen berhasil!');
+        }
+
+        return back()->withErrors(['email' => 'Email atau password salah / bukan akun dosen.'])->withInput();
+    }
+
+    public function loginMahasiswa(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email|max:255',
+            'password' => 'required|min:6',
+        ]);
+
+        if (Auth::attempt(['email' => $validated['email'], 'password' => $validated['password'], 'role' => 'user'])) {
+            $request->session()->regenerate();
+            return redirect('/')->with('success', 'Login berhasil!');
+        }
+
+        return back()->withErrors(['email' => 'Email atau password salah / bukan akun mahasiswa.'])->withInput();
+    }
+
     public function showRegister()
     {
         if (Auth::check()) {
             return redirect('/');
         }
         return view('auth.register');
+    }
+
+    public function showRegisterDosen()
+    {
+        if (Auth::check()) {
+            return redirect('/');
+        }
+        return view('auth.register-dosen');
     }
 
     public function register(Request $request)
@@ -58,11 +112,53 @@ class AuthController extends Controller
         return redirect('/')->with('success', 'Registrasi berhasil! Selamat datang di SimpleLab.');
     }
 
+    public function registerDosen(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email',
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => 'dosen',
+        ]);
+
+        Auth::login($user);
+        return redirect('/')->with('success', 'Registrasi dosen berhasil!');
+    }
+
     public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect('/login')->with('success', 'Logout berhasil.');
+    }
+
+    public function createDosenByAdmin(Request $request)
+    {
+        $user = Auth::user();
+        if (! $user || $user->role !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email',
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => 'dosen',
+        ]);
+
+        return back()->with('success', 'Akun dosen berhasil dibuat.');
     }
 }
