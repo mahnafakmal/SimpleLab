@@ -41,6 +41,7 @@
                     <table>
                         <thead>
                             <tr>
+                                <th>Gambar</th>
                                 <th>Nama</th>
                                 <th>Kategori</th>
                                 <th>Kondisi</th>
@@ -50,6 +51,13 @@
                         <tbody>
                             @foreach($items as $it)
                                 <tr>
+                                    <td>
+                                        @if($it->image)
+                                            <img src="/{{ $it->image }}" alt="{{ $it->name }}" style="width:56px;height:40px;object-fit:cover;border-radius:6px;">
+                                        @else
+                                            <div style="width:56px;height:40px;background:#f3f4f6;border-radius:6px;display:inline-block;"></div>
+                                        @endif
+                                    </td>
                                     <td>{{ $it->name }}</td>
                                     <td>{{ $it->kategori ?? '-' }}</td>
                                     <td>{{ $it->kondisi ?? '-' }}</td>

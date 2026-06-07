@@ -17,6 +17,10 @@ class PeminjamanController extends Controller
     // Borrow equipment via Web form
     public function borrowAlat(Request $request)
     {
+        // Only Mahasiswa (role 'user') may borrow directly
+        if (! auth()->check() || auth()->user()->role !== 'user') {
+            abort(403, 'Only Mahasiswa may borrow equipment via this form.');
+        }
         $request->validate([
             'barang_id' => 'required|exists:barangs,id',
         ]);
@@ -61,6 +65,41 @@ class PeminjamanController extends Controller
         ]);
 
         return back()->with('success', sprintf('Berhasil meminjam alat %s! Harap jaga kondisi barang.', $barang->name));
+    }
+
+    // Dosen requests borrowing: creates a pending peminjaman for admin approval
+    public function borrowAlatDosen(Request $request)
+    {
+        if (! auth()->check() || auth()->user()->role !== 'dosen') {
+            abort(403, 'Only Dosen may request borrowing via this form.');
+        }
+
+        $request->validate([
+            'barang_id' => 'required|exists:barangs,id',
+            'notes' => 'nullable|string|max:500'
+        ]);
+
+        $barang = Barang::findOrFail($request->barang_id);
+
+        if ($barang->status !== 'available') {
+            return back()->with('error', 'Alat sedang tidak tersedia.');
+        }
+
+        // Create a pending peminjaman; do not set barang status yet
+        $peminjaman = Peminjaman::create([
+            'user_id' => auth()->id(),
+            'barang_id' => $barang->id,
+            'tag_rfid_id' => null,
+            'started_at' => null,
+            'status' => 'pending',
+        ]);
+
+        RiwayatLog::create([
+            'event' => 'Request Peminjaman Dosen',
+            'detail' => sprintf('Dosen %s meminta peminjaman barang %s.', auth()->user()->name, $barang->name),
+        ]);
+
+        return back()->with('success', 'Permintaan peminjaman telah dikirim. Tunggu persetujuan admin.');
     }
 
     // Return equipment via Web form

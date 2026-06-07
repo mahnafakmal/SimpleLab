@@ -202,12 +202,11 @@
 
                     <!-- Tabs to switch forms -->
                     <div class="form-tabs">
-                        <button type="button" id="tabBtnAlat" class="form-tab-btn active" onclick="switchFormTab('alatForm', this)">Pinjam Alat</button>
-                        <button type="button" id="tabBtnRuang" class="form-tab-btn" onclick="switchFormTab('ruangForm', this)">Booking Ruang</button>
+                        <button type="button" id="tabBtnAlat" class="form-tab-btn active">Pinjam Alat</button>
                     </div>
 
                     <!-- Form 1: Borrow Equipment -->
-                    <form id="alatForm" class="booking-form active" action="{{ route('web.peminjaman.alat') }}" method="POST">
+                    <form id="alatForm" class="booking-form active" action="{{ auth()->user()->role === 'dosen' ? route('web.peminjaman.alat.dosen') : route('web.peminjaman.alat') }}" method="POST">
                         @csrf
                         <div class="form-group" style="margin-bottom: 1rem;">
                             <label for="barang_id">Pilih Alat Lab (Tersedia)</label>
@@ -224,109 +223,10 @@
                         </button>
                     </form>
 
-                    <!-- Form 2: Book Lab Room -->
-                    <form id="ruangForm" class="booking-form" action="{{ route('web.peminjaman.ruangan') }}" method="POST">
-                        @csrf
-                        <div class="form-group" style="margin-bottom: 0.75rem;">
-                            <label for="nama_ruangan">Pilih Ruangan Lab</label>
-                            <select name="nama_ruangan" id="nama_ruangan" class="form-control-custom" required>
-                                <option value="Ruang Utama Lab IoT" {{ old('nama_ruangan') === 'Ruang Utama Lab IoT' ? 'selected' : '' }}>Ruang Utama Lab IoT</option>
-                                <option value="Ruang Embedded System" {{ old('nama_ruangan') === 'Ruang Embedded System' ? 'selected' : '' }}>Ruang Embedded System</option>
-                                <option value="Ruang Server & Network" {{ old('nama_ruangan') === 'Ruang Server & Network' ? 'selected' : '' }}>Ruang Server & Network</option>
-                                <option value="Ruang Riset Mandiri" {{ old('nama_ruangan') === 'Ruang Riset Mandiri' ? 'selected' : '' }}>Ruang Riset Mandiri</option>
-                            </select>
-                        </div>
-                        <div class="form-group" style="margin-bottom: 0.75rem;">
-                            <label for="tanggal">Tanggal Booking</label>
-                            <input type="date" name="tanggal" id="tanggal" class="form-control-custom" min="{{ date('Y-m-d') }}" required value="{{ old('tanggal') ?? date('Y-m-d') }}">
-                        </div>
-                        <div class="form-row-2" style="margin-bottom: 0.75rem;">
-                            <div class="form-group">
-                                <label for="jam_mulai">Jam Mulai</label>
-                                <select name="jam_mulai" id="jam_mulai" class="form-control-custom" required>
-                                    @for($i = 8; $i <= 17; $i++)
-                                        @php $time = sprintf('%02d:00', $i); @endphp
-                                        <option value="{{ $time }}" {{ old('jam_mulai') === $time ? 'selected' : '' }}>{{ $time }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="jam_selesai">Jam Selesai</label>
-                                <select name="jam_selesai" id="jam_selesai" class="form-control-custom" required>
-                                    @for($i = 9; $i <= 18; $i++)
-                                        @php $time = sprintf('%02d:00', $i); @endphp
-                                        <option value="{{ $time }}" {{ old('jam_selesai') === $time ? 'selected' : '' }}>{{ $time }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group" style="margin-bottom: 1rem;">
-                            <label for="keperluan">Keperluan Kegiatan</label>
-                            <textarea name="keperluan" id="keperluan" class="form-control-custom textarea-custom" placeholder="Contoh: Melakukan penelitian IoT praktikum mandiri..." required>{{ old('keperluan') }}</textarea>
-                        </div>
-                        <button type="submit" class="btn-submit-booking">
-                            <i data-lucide="calendar" style="width: 16px; height: 16px;"></i>
-                            Booking Ruang Sekarang
-                        </button>
-                    </form>
+                    <!-- Room booking feature removed -->
                 </div>
 
-                <!-- Lab Schedule Section -->
-                <div class="panel-card">
-                    <div class="panel-header">
-                        <div class="panel-title">
-                            <i data-lucide="calendar"></i>
-                            <h3>Jadwal Penggunaan Lab</h3>
-                        </div>
-                    </div>
-
-                    <div class="schedule-list">
-                        @php
-                            $days = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
-                            // build map by day and hour (HH)
-                            $map = [];
-                            foreach($jadwalLabs as $j) {
-                                $hour = str_pad(substr($j->jam_mulai,0,2),2,'0',STR_PAD_LEFT);
-                                $map[$j->hari][$hour][] = $j;
-                            }
-                        @endphp
-
-                        <div class="table-responsive">
-                            <table class="schedule-grid">
-                                <thead>
-                                    <tr>
-                                        <th>Jam \ Hari</th>
-                                        @foreach($days as $d)
-                                            <th>{{ $d }}</th>
-                                        @endforeach
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @for($h = 7; $h <= 21; $h++)
-                                        @php $hh = sprintf('%02d:00', $h); $hkey = sprintf('%02d', $h); @endphp
-                                        <tr>
-                                            <td style="font-weight:700;">{{ $hh }}</td>
-                                            @foreach($days as $d)
-                                                <td>
-                                                    @if(isset($map[$d][$hkey]))
-                                                        @foreach($map[$d][$hkey] as $entry)
-                                                            <div style="padding:6px;border-radius:6px;background:#f8fafc;margin-bottom:6px;">
-                                                                <div style="font-weight:600">{{ $entry->mata_kuliah }}</div>
-                                                                <div style="font-size:12px;color:#64748b;">{{ $entry->jam_mulai }} - {{ $entry->jam_selesai }} • {{ $entry->kelas }}</div>
-                                                            </div>
-                                                        @endforeach
-                                                    @else
-                                                        <span style="color:#94a3b8;font-size:13px;">-</span>
-                                                    @endif
-                                                </td>
-                                            @endforeach
-                                        </tr>
-                                    @endfor
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                <!-- Jadwal removed -->
 
                 <!-- My Loans Section -->
                 <div class="panel-card">
@@ -365,35 +265,7 @@
                         @endforelse
                     </div>
 
-                    <!-- Active Room Bookings -->
-                    <div class="loan-list">
-                        <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); border-left: 3px solid #10b981; padding-left: 6px; margin-bottom: 0.5rem;">Booking Ruangan</h4>
-                        @forelse($peminjamanRuanganSaya as $booking)
-                            <div class="loan-item">
-                                <div class="loan-item-info">
-                                    <h4>{{ $booking->nama_ruangan }}</h4>
-                                    <p>Jadwal: {{ \Carbon\Carbon::parse($booking->tanggal)->isoFormat('D MMM YYYY') }} ({{ $booking->jam_mulai }} - {{ $booking->jam_selesai }})</p>
-                                    <p style="font-size: 0.7rem; color: #10b981; margin-top: 2px;">Keperluan: "{{ $booking->keperluan }}"</p>
-                                </div>
-                                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.35rem;">
-                                    @if($booking->status === 'approved')
-                                        <span class="badge badge-success" style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0;">Disetujui</span>
-                                        <form action="{{ route('web.cancel.ruangan', $booking->id) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="cancel-booking-btn" style="color: var(--danger);">Batalkan</button>
-                                        </form>
-                                    @else
-                                        <span class="badge badge-gray">{{ $booking->status }}</span>
-                                    @endif
-                                </div>
-                            </div>
-                        @empty
-                            <div class="empty-placeholder" style="padding: 1rem;">
-                                <p style="font-size: 0.8rem;">Tidak ada booking ruangan aktif.</p>
-                            </div>
-                        @endforelse
-                    </div>
+                    <!-- Room booking feature removed -->
                 </div>
             </div>
         </div>
@@ -444,9 +316,7 @@
 
         // Restore active tab based on old/error states if needed
         document.addEventListener("DOMContentLoaded", function() {
-            @if($errors->has('nama_ruangan') || $errors->has('tanggal') || $errors->has('jam_mulai') || $errors->has('jam_selesai') || $errors->has('keperluan') || session()->has('error') && str_contains(session('error'), 'ruangan'))
-                document.getElementById('tabBtnRuang').click();
-            @endif
+            // No room-booking tab anymore; nothing to restore here.
         });
     </script>
 </body>

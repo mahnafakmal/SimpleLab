@@ -60,7 +60,6 @@
             <div class="tab-item" onclick="switchTab('scan', this)">Scan RFID</div>
             <div class="tab-item" onclick="switchTab('pengguna', this)">Pengguna</div>
             <div class="tab-item" onclick="switchTab('laporan', this)">Laporan</div>
-            <div class="tab-item" onclick="switchTab('monitoring', this)">Monitoring Ruangan</div>
         </div>
 
         @if(session('success'))
@@ -80,9 +79,6 @@
     </div>
             <div id="laporan" class="tab-content">
         @include('dashboard.sections.laporan')
-    </div>
-            <div id="monitoring" class="tab-content">
-        @include('dashboard.sections.monitoring')
     </div>
     </main>
 

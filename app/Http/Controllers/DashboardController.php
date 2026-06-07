@@ -9,7 +9,6 @@ use App\Models\RfidCard;
 use App\Models\TagRfid;
 use App\Models\User;
 use App\Models\JadwalLab;
-use App\Models\PeminjamanRuangan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -32,7 +31,6 @@ class DashboardController extends Controller
             $tags = TagRfid::with('barang')->get();
             $cards = RfidCard::with('user')->get();
             $allLoans = Peminjaman::with(['barang', 'user', 'tagRfid'])->orderBy('created_at', 'desc')->get();
-            $allRooms = PeminjamanRuangan::orderBy('created_at', 'desc')->get();
             // Aggregated summaries per item name
             $itemsSummary = Barang::select('name', DB::raw('count(*) as total_count'))
                 ->groupBy('name')
@@ -57,7 +55,6 @@ class DashboardController extends Controller
                 'cards',
                 'availableItems',
                 'allLoans',
-                'allRooms',
                 'itemsSummary',
                 'availableSummary'
             ));
@@ -69,19 +66,10 @@ class DashboardController extends Controller
         $alatTersedia = Barang::where('status', 'available')->count();
         $alatDipinjam = Barang::where('status', 'borrowed')->count();
         
-        // Jadwal umum
-        $jadwalAll = JadwalLab::orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu')")->get();
-
-        // Use the same home view for non-admin users (mahasiswa and dosen)
-        $jadwalLabs = $jadwalAll;
+        // Jadwal removed from home view
         
         $peminjamanSaya = Peminjaman::with('barang')
             ->where('user_id', $user->id)
-            ->latest()
-            ->take(5)
-            ->get();
-
-        $peminjamanRuanganSaya = PeminjamanRuangan::where('user_id', $user->id)
             ->latest()
             ->take(5)
             ->get();
@@ -91,9 +79,7 @@ class DashboardController extends Controller
             'totalAlat',
             'alatTersedia',
             'alatDipinjam',
-            'jadwalLabs',
-            'peminjamanSaya',
-            'peminjamanRuanganSaya'
+            'peminjamanSaya'
         ));
     }
 
@@ -149,12 +135,7 @@ class DashboardController extends Controller
      */
     public function reportRuangan()
     {
-        $user = Auth::user();
-        if (! $user || $user->role !== 'admin') {
-            abort(403);
-        }
-
-        $ruangan = PeminjamanRuangan::with('user')->orderBy('created_at', 'desc')->get();
-        return view('admin.laporan.ruangan', compact('ruangan'));
+        // Room reports removed because booking feature is disabled.
+        abort(404);
     }
 }

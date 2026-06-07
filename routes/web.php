@@ -27,6 +27,13 @@ Route::middleware('auth')->group(function () {
 
     // RFID endpoints
     Route::post('/barang/register', [RfidController::class, 'registerBarang']);
+    Route::get('/barang/{id}/edit', [RfidController::class, 'editBarang']);
+    Route::post('/barang/{id}/update', [RfidController::class, 'updateBarang']);
+    // Support direct GET to the update URL by redirecting to the edit form
+    Route::get('/barang/{id}/update', function ($id) {
+        return redirect("/barang/{$id}/edit");
+    });
+    Route::post('/barang/{id}/delete', [RfidController::class, 'deleteBarang']);
     Route::post('/rfid/card/register', [RfidController::class, 'registerUserCard']);
     Route::post('/rfid/authenticate', [RfidController::class, 'authenticateUser']);
     Route::post('/rfid/track', [RfidController::class, 'trackAsset']);
@@ -34,13 +41,13 @@ Route::middleware('auth')->group(function () {
 
     // Web Peminjaman & Booking endpoints
     Route::post('/web/peminjaman/alat', [PeminjamanController::class, 'borrowAlat'])->name('web.peminjaman.alat');
+    Route::post('/web/peminjaman/alat/dosen', [PeminjamanController::class, 'borrowAlatDosen'])->name('web.peminjaman.alat.dosen');
     Route::post('/web/pengembalian/alat/{id}', [PeminjamanController::class, 'returnAlat'])->name('web.pengembalian.alat');
-    Route::post('/web/peminjaman/ruangan', [PeminjamanController::class, 'borrowRuangan'])->name('web.peminjaman.ruangan');
-    Route::delete('/web/peminjaman/ruangan/{id}', [PeminjamanController::class, 'cancelRuangan'])->name('web.cancel.ruangan');
+    // Room booking routes removed (feature disabled)
 
     // Admin loan and room status routes
     Route::post('/admin/loan/status/{id}', [AdminPeminjamanController::class, 'updateLoanStatus'])->name('admin.loan.status');
-    Route::post('/admin/room/status/{id}', [AdminPeminjamanController::class, 'updateRoomStatus'])->name('admin.room.status');
+    // Admin room status route removed (booking feature disabled)
 
     // Admin: create dosen account
     Route::post('/admin/users/dosen', [AuthController::class, 'createDosenByAdmin'])->name('admin.users.dosen.create');
@@ -52,5 +59,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/barang/dipinjam', [DashboardController::class, 'borrowedItems'])->name('barang.dipinjam');
     // Admin reports: history peminjaman
     Route::get('/admin/laporan/peminjaman', [DashboardController::class, 'reportPeminjaman'])->name('admin.laporan.peminjaman');
-    Route::get('/admin/laporan/ruangan', [DashboardController::class, 'reportRuangan'])->name('admin.laporan.ruangan');
+    // Admin room reports removed
 });

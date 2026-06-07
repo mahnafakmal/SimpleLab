@@ -25,12 +25,13 @@
         </div>
     </div>
 
-    <form action="/barang/register" method="POST" class="card form-card">
+    <form action="/barang/register" method="POST" class="card form-card" enctype="multipart/form-data">
         @csrf
         <h3>Registrasi Barang dan Tag RFID</h3>
         <div class="input-group">
             <input type="text" name="name" class="input-custom" placeholder="Nama Barang" required>
             <input type="text" name="kategori" class="input-custom" placeholder="Kategori" required>
+            <input type="file" name="image" accept="image/*" class="input-custom" style="padding:6px;">
             <div style="display:flex;gap:8px;align-items:center;">
                 <input type="text" name="rfid_uid" class="input-custom rfid-scan-input" placeholder="Scan UID Tag RFID" autocomplete="off" required>
                 <button type="button" class="btn-scan" style="padding:6px 10px;" onclick="focusAndNotify(this.closest('form').querySelector('[name=rfid_uid]'), 'Klik field UID lalu pindai tag RFID.')">Scan</button>
@@ -52,6 +53,7 @@
                 <table>
                     <thead>
                         <tr>
+                            <th>Gambar</th>
                             <th>Barang</th>
                             <th>RFID UID</th>
                             <th>Status</th>
@@ -60,6 +62,13 @@
                     <tbody>
                         @foreach($tags as $tag)
                             <tr>
+                                <td>
+                                    @if(isset($tag->barang) && $tag->barang->image)
+                                        <img src="/{{ $tag->barang->image }}" alt="{{ $tag->barang->name }}" style="width:56px;height:40px;object-fit:cover;border-radius:6px;">
+                                    @else
+                                        <div style="width:56px;height:40px;background:#f3f4f6;border-radius:6px;display:inline-block;"></div>
+                                    @endif
+                                </td>
                                 <td>{{ $tag->barang->name ?? 'Tidak Ditemukan' }}</td>
                                 <td>{{ $tag->uid }}</td>
                                 <td>{{ ucfirst($tag->barang->status ?? 'unknown') }}</td>
@@ -83,17 +92,33 @@
                 <table>
                     <thead>
                         <tr>
+                            <th>Gambar</th>
                             <th>Nama Barang</th>
                             <th>Kategori</th>
                             <th>Kondisi</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($availableItems as $item)
                             <tr>
+                                <td>
+                                    @if($item->image)
+                                        <img src="/{{ $item->image }}" alt="{{ $item->name }}" style="width:56px;height:40px;object-fit:cover;border-radius:6px;">
+                                    @else
+                                        <div style="width:56px;height:40px;background:#f3f4f6;border-radius:6px;display:inline-block;"></div>
+                                    @endif
+                                </td>
                                 <td>{{ $item->name }}</td>
                                 <td>{{ $item->kategori ?? '-' }}</td>
                                 <td>{{ $item->kondisi ?? '-' }}</td>
+                                <td style="display:flex;gap:8px;align-items:center;">
+                                    <a href="/barang/{{ $item->id }}/edit" class="btn-link">Edit</a>
+                                    <form action="/barang/{{ $item->id }}/delete" method="POST" onsubmit="return confirm('Yakin ingin menghapus barang ini? Aksi tidak dapat dibatalkan.');" style="display:inline;">
+                                        @csrf
+                                        <button type="submit" class="btn-danger" style="background:transparent;border:none;color:#ef4444;cursor:pointer;padding:4px 6px;">Hapus</button>
+                                    </form>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>

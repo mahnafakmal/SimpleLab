@@ -15,18 +15,36 @@ class RfidController extends Controller
 {
     public function registerBarang(Request $request)
     {
+        $user = auth()->user();
+        if (! $user || $user->role !== 'admin') {
+            abort(403, 'Hanya admin yang dapat mendaftarkan barang.');
+        }
         $request->validate([
             'name' => 'required|string|max:255',
             'kategori' => 'required|string|max:255',
             'rfid_uid' => 'required|string|max:255|unique:tag_rfids,uid',
+            'image' => 'nullable|image|max:2048',
         ]);
 
-        $barang = Barang::create([
+        $data = [
             'name' => $request->name,
             'kategori' => $request->kategori,
             'kondisi' => 'Baik',
             'status' => 'available',
-        ]);
+        ];
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = time() . '_' . preg_replace('/[^A-Za-z0-9\-_.]/', '_', $file->getClientOriginalName());
+            $dest = public_path('images/barangs');
+            if (! file_exists($dest)) {
+                mkdir($dest, 0755, true);
+            }
+            $file->move($dest, $filename);
+            $data['image'] = 'images/barangs/' . $filename;
+        }
+
+        $barang = Barang::create($data);
 
         TagRfid::create([
             'uid' => $request->rfid_uid,
@@ -39,6 +57,87 @@ class RfidController extends Controller
         ]);
 
         return redirect('/')->with('success', 'Barang dan Tag RFID berhasil didaftarkan.');
+    }
+
+    public function editBarang($id)
+    {
+        $user = auth()->user();
+        if (! $user || $user->role !== 'admin') {
+            abort(403, 'Hanya admin yang dapat mengedit barang.');
+        }
+
+        $barang = Barang::findOrFail($id);
+        return view('barang.edit', compact('barang'));
+    }
+
+    public function updateBarang(Request $request, $id)
+    {
+        $user = auth()->user();
+        if (! $user || $user->role !== 'admin') {
+            abort(403, 'Hanya admin yang dapat memperbarui barang.');
+        }
+
+        $barang = Barang::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'kategori' => 'nullable|string|max:255',
+            'kondisi' => 'nullable|string|max:255',
+            'status' => 'nullable|string|max:50',
+            'image' => 'nullable|image|max:2048',
+        ]);
+
+        $data = $request->only(['name', 'kategori', 'kondisi', 'status']);
+
+        if ($request->hasFile('image')) {
+            // remove old image if exists
+            if ($barang->image && file_exists(public_path($barang->image))) {
+                @unlink(public_path($barang->image));
+            }
+
+            $file = $request->file('image');
+            $filename = time() . '_' . preg_replace('/[^A-Za-z0-9\-_.]/', '_', $file->getClientOriginalName());
+            $dest = public_path('images/barangs');
+            if (! file_exists($dest)) {
+                mkdir($dest, 0755, true);
+            }
+            $file->move($dest, $filename);
+            $data['image'] = 'images/barangs/' . $filename;
+        }
+
+        $barang->update($data);
+
+        RiwayatLog::create([
+            'event' => 'Update Barang',
+            'detail' => sprintf('Barang "%s" diperbarui oleh user.', $barang->name),
+        ]);
+
+        return redirect('/')->with('success', 'Data barang berhasil diperbarui.');
+    }
+
+    public function deleteBarang(Request $request, $id)
+    {
+        $user = auth()->user();
+        if (! $user || $user->role !== 'admin') {
+            abort(403, 'Hanya admin yang dapat menghapus barang.');
+        }
+
+        $barang = Barang::findOrFail($id);
+
+        // remove image file if exists
+        if ($barang->image && file_exists(public_path($barang->image))) {
+            @unlink(public_path($barang->image));
+        }
+
+        $name = $barang->name;
+        $barang->delete();
+
+        RiwayatLog::create([
+            'event' => 'Hapus Barang',
+            'detail' => sprintf('Barang "%s" dihapus oleh user.', $name),
+        ]);
+
+        return redirect('/')->with('success', sprintf('Barang "%s" berhasil dihapus.', $name));
     }
 
     public function registerUserCard(Request $request)

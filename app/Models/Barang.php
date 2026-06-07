@@ -14,6 +14,7 @@ class Barang extends Model
         'kategori',
         'kondisi',
         'status',
+        'image',
     ];
 
     public function tagRfid()
