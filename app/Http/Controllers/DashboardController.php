@@ -9,6 +9,7 @@ use App\Models\RfidCard;
 use App\Models\TagRfid;
 use App\Models\User;
 use App\Models\JadwalLab;
+use App\Models\LaporanKerusakan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -42,6 +43,11 @@ class DashboardController extends Controller
                 ->orderBy('name')
                 ->get();
 
+            // Fetch dynamic damage reports count and pending requests count
+            $totalDamaged = Barang::where('kondisi', '!=', 'Baik')->count();
+            $pendingLoans = Peminjaman::where('status', 'pending')->count();
+            $allReports = LaporanKerusakan::with(['user', 'barang'])->orderBy('created_at', 'desc')->get();
+
             return view('dashboard', compact(
                 'totalAssets',
                 'available',
@@ -56,7 +62,10 @@ class DashboardController extends Controller
                 'availableItems',
                 'allLoans',
                 'itemsSummary',
-                'availableSummary'
+                'availableSummary',
+                'totalDamaged',
+                'pendingLoans',
+                'allReports'
             ));
         }
 
@@ -74,12 +83,19 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
+        $laporanKerusakanSaya = LaporanKerusakan::with('barang')
+            ->where('user_id', $user->id)
+            ->latest()
+            ->take(5)
+            ->get();
+
         return view('home', compact(
             'barangs',
             'totalAlat',
             'alatTersedia',
             'alatDipinjam',
-            'peminjamanSaya'
+            'peminjamanSaya',
+            'laporanKerusakanSaya'
         ));
     }
 

@@ -140,6 +140,7 @@
                                     <th>Kategori</th>
                                     <th>Kondisi</th>
                                     <th>Status Ketersediaan</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -195,10 +196,19 @@
                                                 </span>
                                             @endif
                                         </td>
+                                        <td>
+                                            @if(strtolower($barang->kondisi) === 'baik')
+                                                <button type="button" onclick="reportDamage({{ $barang->id }})" class="cancel-booking-btn" style="color: var(--danger); text-decoration: none; display: flex; align-items: center; gap: 4px; padding: 0; background: none; border: none; font-size: 0.8rem; font-weight: 600; cursor: pointer;">
+                                                    <i data-lucide="alert-triangle" style="width: 12px; height: 12px;"></i> Laporkan Rusak
+                                                </button>
+                                            @else
+                                                <span style="font-size: 11px; color: var(--text-muted);">{{ $barang->kondisi }}</span>
+                                            @endif
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" style="text-align: center; padding: 2rem;">
+                                        <td colspan="5" style="text-align: center; padding: 2rem;">
                                             <div class="empty-placeholder">
                                                 <i data-lucide="package-open"></i>
                                                 <p>Belum ada alat laboratorium yang terdaftar.</p>
@@ -220,13 +230,14 @@
                     <div class="panel-header">
                         <div class="panel-title">
                             <i data-lucide="arrow-right-left"></i>
-                            <h3>Peminjaman & Pemesanan</h3>
+                            <h3>Aktivitas Lab</h3>
                         </div>
                     </div>
 
                     <!-- Tabs to switch forms -->
                     <div class="form-tabs">
-                        <button type="button" id="tabBtnAlat" class="form-tab-btn active">Pinjam Alat</button>
+                        <button type="button" id="tabBtnAlat" class="form-tab-btn active" onclick="switchFormTab('alatForm', this)">Pinjam Alat</button>
+                        <button type="button" id="tabBtnKerusakan" class="form-tab-btn" onclick="switchFormTab('kerusakanForm', this)">Laporkan Rusak</button>
                     </div>
 
                     <!-- Form 1: Borrow Equipment -->
@@ -236,7 +247,7 @@
                             <label for="barang_id">Pilih Alat Lab (Tersedia)</label>
                             <select name="barang_id" id="barang_id" class="form-control-custom" required>
                                 <option value="">-- Pilih Alat --</option>
-                                @foreach($barangs->where('status', 'available') as $b)
+                                @foreach($barangs->where('status', 'available')->where('kondisi', 'Baik') as $b)
                                     <option value="{{ $b->id }}">{{ $b->name }} ({{ $b->kategori }})</option>
                                 @endforeach
                             </select>
@@ -247,7 +258,27 @@
                         </button>
                     </form>
 
-                    <!-- Room booking feature removed -->
+                    <!-- Form 2: Report Damage -->
+                    <form id="kerusakanForm" class="booking-form" action="{{ route('laporan.kerusakan.store') }}" method="POST">
+                        @csrf
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="kerusakan_barang_id">Pilih Alat Lab</label>
+                            <select name="barang_id" id="kerusakan_barang_id" class="form-control-custom" required>
+                                <option value="">-- Pilih Alat --</option>
+                                @foreach($barangs as $b)
+                                    <option value="{{ $b->id }}">{{ $b->name }} (Kondisi: {{ $b->kondisi }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="deskripsi_kerusakan">Deskripsi Kerusakan</label>
+                            <textarea name="deskripsi" id="deskripsi_kerusakan" class="form-control-custom textarea-custom" placeholder="Jelaskan kerusakan barang secara detail..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit-booking" style="background: var(--danger);">
+                            <i data-lucide="alert-triangle" style="width: 16px; height: 16px;"></i>
+                            Kirim Laporan Kerusakan
+                        </button>
+                    </form>
                 </div>
 
                 <!-- Jadwal removed -->
@@ -311,7 +342,32 @@
                         @endforelse
                     </div>
 
-                    <!-- Room booking feature removed -->
+                    <!-- My Damage Reports -->
+                    <div class="report-list">
+                        <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); border-left: 3px solid var(--danger); padding-left: 6px; margin-bottom: 0.5rem;">Laporan Kerusakan</h4>
+                        @forelse($laporanKerusakanSaya as $laporan)
+                            <div class="loan-item" style="display:flex;gap:12px;align-items:center;margin-bottom:8px;padding:0.5rem 0.75rem;">
+                                <div style="flex:1;">
+                                    <h4 style="margin:0 0 2px;font-size:0.85rem;">{{ $laporan->barang->name }}</h4>
+                                    <p style="margin:0;font-size:0.75rem;color:#64748b;line-height:1.2;">{{ $laporan->deskripsi }}</p>
+                                    <p style="margin:4px 0 0 0;font-size:0.7rem;color:#94a3b8;">{{ $laporan->created_at->diffForHumans() }}</p>
+                                </div>
+                                <div>
+                                    @if($laporan->status === 'pending')
+                                        <span class="badge badge-warning" style="font-size: 0.65rem;">Pending</span>
+                                    @elseif($laporan->status === 'proses')
+                                        <span class="badge badge-info" style="font-size: 0.65rem; background:#e0f2fe; color:#0369a1;">Proses</span>
+                                    @else
+                                        <span class="badge badge-success" style="font-size: 0.65rem;">Selesai</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @empty
+                            <div class="empty-placeholder" style="padding: 1rem;">
+                                <p style="font-size: 0.8rem;">Belum ada laporan kerusakan.</p>
+                            </div>
+                        @endforelse
+                    </div>
                 </div>
             </div>
         </div>
@@ -358,6 +414,24 @@
 
             // Show selected form
             document.getElementById(formId).classList.add('active');
+        }
+
+        function reportDamage(barangId) {
+            // Switch to the damage tab
+            const tabBtn = document.getElementById('tabBtnKerusakan');
+            if (tabBtn) {
+                switchFormTab('kerusakanForm', tabBtn);
+            }
+            // Select the barang in the dropdown
+            const select = document.getElementById('kerusakan_barang_id');
+            if (select) {
+                select.value = barangId;
+            }
+            // Focus the textarea
+            const textarea = document.getElementById('deskripsi_kerusakan');
+            if (textarea) {
+                textarea.focus();
+            }
         }
 
         // Restore active tab based on old/error states if needed

@@ -21,15 +21,15 @@
             <span class="value" style="color: #3b82f6;">{{ $borrowed ?? 0 }}</span>
             </a>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" onclick="switchTab('admin_peminjaman')" style="cursor: pointer;">
             <div class="icon-box" style="background: #fef2f2; color: #ef4444;"><i data-lucide="alert-triangle"></i></div>
             <span class="label">Rusak/Maintenance</span>
-            <span class="value" style="color: #ef4444;">0</span>
+            <span class="value" style="color: #ef4444;">{{ $totalDamaged ?? 0 }}</span>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" onclick="switchTab('admin_peminjaman')" style="cursor: pointer;">
             <div class="icon-box" style="background: #fffbeb; color: #f59e0b;"><i data-lucide="clock"></i></div>
             <span class="label">Permintaan Pending</span>
-            <span class="value" style="color: #f59e0b;">0</span>
+            <span class="value" style="color: #f59e0b;">{{ $pendingLoans ?? 0 }}</span>
         </div>
         <div class="stat-card">
             <div class="icon-box" style="background: #f0f9ff; color: #0ea5e9;"><i data-lucide="users"></i></div>

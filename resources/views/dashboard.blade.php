@@ -74,12 +74,15 @@
         @include('dashboard.sections.peminjaman')
         @include('dashboard.sections.scan')
         @include('dashboard.sections.pengguna')
-            <div id="admin_peminjaman" class="tab-content">
-        @include('dashboard.sections.admin_peminjaman')
-    </div>
-            <div id="laporan" class="tab-content">
-        @include('dashboard.sections.laporan')
-    </div>
+        <div id="admin_peminjaman" class="tab-content">
+            @include('dashboard.sections.admin_peminjaman')
+            <div style="margin-top: 2rem;">
+                @include('dashboard.sections.laporan_kerusakan')
+            </div>
+        </div>
+        <div id="laporan" class="tab-content">
+            @include('dashboard.sections.laporan')
+        </div>
     </main>
 
     <script>
@@ -95,6 +98,14 @@
             // Add active class to clicked tab
             if (tabEl) {
                 tabEl.classList.add('active');
+            } else {
+                const tabItem = Array.from(document.querySelectorAll('.tab-item')).find(item => {
+                    const onclickStr = item.getAttribute('onclick') || '';
+                    return onclickStr.includes(`'${tabId}'`) || onclickStr.includes(`"${tabId}"`);
+                });
+                if (tabItem) {
+                    tabItem.classList.add('active');
+                }
             }
 
             // Hide all content areas
@@ -102,7 +113,10 @@
                 content.classList.remove('active');
             });
             // Show target content area
-            document.getElementById(tabId).classList.add('active');
+            const target = document.getElementById(tabId);
+            if (target) {
+                target.classList.add('active');
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function () {

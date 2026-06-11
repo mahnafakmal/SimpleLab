@@ -7,6 +7,7 @@ use App\Http\Controllers\PeminjamanController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminPeminjamanController;
 use App\Http\Controllers\DemoController;
+use App\Http\Controllers\LaporanKerusakanController;
 use Illuminate\Support\Facades\View;
 
 // Auth Routes
@@ -70,6 +71,10 @@ Route::middleware('auth')->group(function () {
     // Admin reports: history peminjaman
     Route::get('/admin/laporan/peminjaman', [DashboardController::class, 'reportPeminjaman'])->name('admin.laporan.peminjaman');
     // Admin room reports removed
+
+    // Laporan Kerusakan
+    Route::post('/laporan-kerusakan', [LaporanKerusakanController::class, 'store'])->name('laporan.kerusakan.store');
+    Route::post('/admin/laporan-kerusakan/{id}/status', [LaporanKerusakanController::class, 'updateStatus'])->name('admin.laporan.kerusakan.status');
 });
 
     // (demo routes removed)
