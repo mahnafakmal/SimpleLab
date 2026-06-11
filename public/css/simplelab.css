@@ -1,0 +1,83 @@
+
+:root{--blue:#0b5ed7;--muted:#6c757d;--bg:#f4f7fb;--sidebar:#0f2b4c;--accent:#3b82f6}
+*{box-sizing:border-box;font-family:Inter,Segoe UI,Arial,Helvetica,sans-serif}
+body{margin:0;background:var(--bg);color:#1f2937}
+.app-shell{display:flex;min-height:100vh}
+.sidebar{width:260px;background:linear-gradient(180deg,#0e2a4a,#07213a);color:#fff;min-height:100vh;padding:28px 18px}
+.sidebar .logo{font-weight:800;font-size:18px;letter-spacing:0.6px}
+.nav{margin-top:28px;display:flex;flex-direction:column}
+.nav-item{color:#cfe4ff;text-decoration:none;padding:10px 12px;border-radius:8px;margin-bottom:8px;font-weight:600;display:flex;align-items:center;gap:10px}
+.nav-item:hover{background:rgba(255,255,255,0.04)}
+.main{flex:1;display:flex;flex-direction:column}
+.topbar{height:64px;background:#fff;border-bottom:1px solid #eef2f6;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+.topbar .brand{font-weight:700;color:var(--sidebar);}
+.topbar .top-actions{color:#6b7280}
+.topbar .avatar{display:flex;align-items:center;gap:10px}
+.content{padding:28px}
+
+/* Login page */
+.login-page{display:flex;align-items:center;justify-content:center;height:82vh}
+.login-card{display:flex;background:#fff;border-radius:10px;overflow:hidden;min-width:940px;box-shadow:0 10px 30px rgba(2,6,23,0.08)}
+.login-left{background:linear-gradient(180deg,#1e90ff,#0b61d9);color:#fff;padding:40px 36px;width:360px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:12px}
+.login-left h2{margin:0 0 6px;font-size:22px}
+.login-left p{opacity:0.95;font-size:14px}
+.login-right{padding:36px;flex:1}
+.login-right label{display:block;margin-top:12px;color:#374151;font-size:13px}
+.login-right input,.login-right select{width:100%;padding:10px;margin-top:8px;border:1px solid #e6eef8;border-radius:8px}
+.logo-circle{width:72px;height:72px;border-radius:12px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-weight:800}
+
+.btn{background:#fff;border:1px solid #e2e8f0;padding:8px 12px;border-radius:8px;cursor:pointer}
+.btn-primary{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:8px}
+
+/* Dashboard styles */
+.dashboard-grid{display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start}
+.cards{display:flex;gap:12px;margin-bottom:14px}
+.card.stat{background:#fff;padding:18px;border-radius:10px;flex:1;text-align:left;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
+.card.stat .num{font-size:22px;font-weight:800}
+.card.stat .label{color:var(--muted);font-size:13px}
+.card.stat .icon{position:absolute;right:12px;top:12px;color:rgba(15,23,42,0.08);font-size:48px}
+
+.activity,.chart-box{background:#fff;padding:18px;border-radius:10px}
+.table{width:100%;border-collapse:collapse;background:transparent}
+.table thead{background:#fafafa}
+.table th,.table td{padding:12px;border-bottom:1px solid #f1f5f9;text-align:left}
+.table tbody tr:hover{background:#fbfdff}
+.table tbody tr td:first-child{font-weight:600;color:#111827}
+
+.search{display:flex;gap:8px;align-items:center}
+.search .input-icon{position:relative}
+.search .input-icon i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#9ca3af}
+.search .input-icon input{padding-left:36px}
+
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.page-header h2{margin:0}
+.actions{display:flex;gap:10px}
+
+.search{display:flex;gap:8px;align-items:center}
+.search input{padding:10px;border-radius:8px;border:1px solid #e6eef8}
+
+.badge{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px;border:1px solid rgba(15,23,42,0.04)}
+.badge.available{background:#ecfdf5;color:#065f46}
+.badge.borrowed{background:#fff7ed;color:#9a3412}
+.badge.rusak{background:#fff1f2;color:#9f1239}
+
+.table-wrap{background:transparent}
+.btn.small{padding:6px 10px;font-size:13px;border-radius:8px}
+.btn.icon{display:inline-flex;align-items:center;gap:8px;padding:8px 12px}
+
+/* Modal basic */
+#modalTambah{display:none}
+#modalTambah > div{box-shadow:0 12px 40px rgba(2,6,23,0.2)}
+
+/* Responsive tweaks */
+@media(max-width:900px){
+	.sidebar{display:none}
+	.login-card{min-width:unset;width:90%}
+	.dashboard-grid{grid-template-columns:1fr}
+}
+.pagination{display:flex;gap:6px;align-items:center;padding:12px}
+
+/* Modal basic */
+#modalTambah{display:none}
+#modalTambah > div{box-shadow:0 12px 40px rgba(2,6,23,0.2)}
+

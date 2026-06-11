@@ -40,6 +40,16 @@ class AuthController extends Controller
             'password' => 'required|min:6',
         ]);
 
+        // If a role is provided in the login form, require that role on authentication
+        $role = $request->input('role');
+        if ($role && in_array($role, ['admin', 'dosen', 'user'])) {
+            if (Auth::attempt(['email' => $validated['email'], 'password' => $validated['password'], 'role' => $role])) {
+                $request->session()->regenerate();
+                return redirect('/')->with('success', 'Login berhasil sebagai ' . $role . '!');
+            }
+            return back()->withErrors(['email' => 'Email atau password salah / bukan akun ' . $role . '.'])->withInput();
+        }
+
         if (Auth::attempt($validated)) {
             $request->session()->regenerate();
             return redirect('/')->with('success', 'Login berhasil!');

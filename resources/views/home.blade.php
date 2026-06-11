@@ -144,8 +144,32 @@
                             </thead>
                             <tbody>
                                 @forelse($barangs as $barang)
+                                    @php
+                                        $img = null;
+                                        $basePath = public_path('images/barangs/');
+                                        $candidates = [];
+                                        if(!empty($barang->image)) $candidates[] = $barang->image;
+                                        $candidates[] = $barang->id . '.jpg';
+                                        $candidates[] = $barang->id . '.png';
+                                        $candidates[] = \Illuminate\Support\Str::slug($barang->name) . '.jpg';
+                                        $candidates[] = \Illuminate\Support\Str::slug($barang->name) . '.png';
+                                        foreach($candidates as $c) {
+                                            if(!empty($c) && file_exists($basePath . $c)) { $img = $c; break; }
+                                        }
+                                    @endphp
                                     <tr class="barang-row" data-name="{{ strtolower($barang->name) }}" data-kategori="{{ strtolower($barang->kategori) }}" data-status="{{ $barang->status }}">
-                                        <td style="font-weight: 600; color: #0f172a;">{{ $barang->name }}</td>
+                                        <td style="font-weight: 600; color: #0f172a; display:flex; align-items:center; gap:10px;">
+                                            <div style="width:48px;height:48px;flex-shrink:0;">
+                                                @if($img)
+                                                    <img src="{{ asset('images/barangs/' . $img) }}" alt="{{ $barang->name }}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid #e6edf3;">
+                                                @else
+                                                    <div style="width:48px;height:48px;border-radius:6px;background:#f8fafc;display:flex;align-items:center;justify-content:center;border:1px solid #e6edf3;">
+                                                        <i data-lucide="box" style="width:18px;height:18px;color:#64748b"></i>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <div>{{ $barang->name }}</div>
+                                        </td>
                                         <td>
                                             <span class="badge-info badge">{{ $barang->kategori ?? 'Umum' }}</span>
                                         </td>
@@ -241,10 +265,32 @@
                     <div class="loan-list" style="margin-bottom: 1.5rem;">
                         <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); border-left: 3px solid var(--primary); padding-left: 6px; margin-bottom: 0.5rem;">Peminjaman Alat</h4>
                         @forelse($peminjamanSaya as $pinjam)
-                            <div class="loan-item">
-                                <div class="loan-item-info">
-                                    <h4>{{ $pinjam->barang->name }}</h4>
-                                    <p>Dipinjam: {{ \Carbon\Carbon::parse($pinjam->started_at)->isoFormat('D MMM YYYY, HH:mm') }} WIB</p>
+                            <div class="loan-item" style="display:flex;gap:12px;align-items:center;">
+                                <div class="loan-item-thumb" style="width:64px;height:64px;flex-shrink:0;">
+                                    @php
+                                        $img = null;
+                                        $basePath = public_path('images/barangs/');
+                                        $candidates = [];
+                                        if(!empty($pinjam->barang->image)) $candidates[] = $pinjam->barang->image;
+                                        $candidates[] = $pinjam->barang->id . '.jpg';
+                                        $candidates[] = $pinjam->barang->id . '.png';
+                                        $candidates[] = \Illuminate\Support\Str::slug($pinjam->barang->name) . '.jpg';
+                                        $candidates[] = \Illuminate\Support\Str::slug($pinjam->barang->name) . '.png';
+                                        foreach($candidates as $c) {
+                                            if(!empty($c) && file_exists($basePath . $c)) { $img = $c; break; }
+                                        }
+                                    @endphp
+                                    @if($img)
+                                        <img src="{{ asset('images/barangs/' . $img) }}" alt="{{ $pinjam->barang->name }}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid #e6edf3;">
+                                    @else
+                                        <div style="width:64px;height:64px;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;border:1px solid #e6edf3;">
+                                            <i data-lucide="box" style="width:24px;height:24px;color:#64748b"></i>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="loan-item-info" style="flex:1;">
+                                    <h4 style="margin:0 0 4px;">{{ $pinjam->barang->name }}</h4>
+                                    <p style="margin:0;font-size:0.85rem;color:#64748b;">Dipinjam: {{ \Carbon\Carbon::parse($pinjam->started_at)->isoFormat('D MMM YYYY, HH:mm') }} WIB</p>
                                 </div>
                                 <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.35rem;">
                                     @if($pinjam->status === 'active')

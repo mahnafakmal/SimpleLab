@@ -52,6 +52,7 @@
                     <table>
                         <thead>
                             <tr>
+                                <th></th>
                                 <th>Nama</th>
                                 <th>Kategori</th>
                                 <th>Kondisi</th>
@@ -60,6 +61,17 @@
                         <tbody>
                             @foreach($availableItems as $item)
                                 <tr>
+                                    <td class="thumb-col">
+                                        @php
+                                            $c1 = public_path('images/barangs/'.$item->image);
+                                            $c2 = public_path('images/'.$item->image);
+                                        @endphp
+                                        @if($item->image && (file_exists($c1) || file_exists($c2)))
+                                            <img src="{{ file_exists($c1) ? asset('images/barangs/'.$item->image) : asset('images/'.$item->image) }}" alt="{{ $item->name }}" class="thumb">
+                                        @else
+                                            <div class="thumb-placeholder"><i data-lucide="camera"></i></div>
+                                        @endif
+                                    </td>
                                     <td>{{ $item->name }}</td>
                                     <td>{{ $item->kategori ?? '-' }}</td>
                                     <td>{{ $item->kondisi ?? '-' }}</td>

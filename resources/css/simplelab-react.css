@@ -1,0 +1,118 @@
+/* SimpleLab React styles
+   Place this file at resources/css/simplelab-react.css
+   Import in your React entry: import '../css/simplelab-react.css'
+*/
+:root{
+  --blue:#1a56db;
+  --blue-dark:#1e429f;
+  --blue-light:#e8f0fe;
+  --green:#057a55;
+  --green-light:#def7ec;
+  --red:#c81e1e;
+  --red-light:#fde8e8;
+  --orange:#e3771a;
+  --orange-light:#fef3c7;
+  --muted:#6b7280;
+  --surface:#ffffff;
+  --ui-border:#e5e7eb;
+  --bg:#f3f4f6;
+  --radius-md:12px;
+}
+
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:var(--bg);color:#111827}
+
+/* Layout */
+.app-root{display:flex;min-height:100vh}
+.sidebar{width:220px;background:var(--blue-dark);color:#fff;display:flex;flex-direction:column;flex-shrink:0}
+.sidebar .brand{padding:20px 16px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px}
+.sidebar .brand .logo{width:36px;height:36px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;color:var(--blue-dark);font-weight:700}
+.sidebar nav{flex:1;padding:8px 0}
+.sidebar button{width:100%;background:transparent;border:0;color:rgba(255,255,255,0.9);padding:10px 20px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:13px;text-align:left;border-left:3px solid transparent}
+.sidebar button.active{background:rgba(255,255,255,0.06);border-left-color:#fff}
+.sidebar .logout{color:rgba(255,255,255,0.7);margin-top:8px}
+
+.main-column{flex:1;display:flex;flex-direction:column;overflow:auto}
+.topbar{background:var(--surface);padding:12px 24px;border-bottom:1px solid var(--ui-border);display:flex;justify-content:space-between;align-items:center}
+.topbar .left{display:flex;align-items:center;gap:12px}
+.topbar .title{font-weight:600;font-size:16px;color:#111827}
+.topbar .actions{display:flex;align-items:center;gap:12px}
+
+.container{padding:24px}
+.grid{display:grid;gap:16px}
+.grid.cols-4{grid-template-columns:repeat(4,1fr)}
+.grid.cols-2{grid-template-columns:repeat(2,1fr)}
+
+.card{background:var(--surface);border-radius:var(--radius-md);padding:16px;border:1px solid var(--ui-border);box-shadow:0 1px 0 rgba(16,24,40,0.02)}
+.card .card-title{font-size:14px;color:#111827;margin:0 0 8px}
+
+.stat{display:flex;align-items:center;gap:14px}
+.stat .icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px}
+.stat .value{font-size:24px;font-weight:700}
+.stat .label{font-size:12px;color:var(--muted)}
+
+/* Charts */
+.barchart{display:flex;align-items:flex-end;gap:8px;height:120px;padding:0 8px}
+.barchart .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.barchart .bar{width:100%;border-radius:4px 4px 0 0;background:var(--blue)}
+
+/* Alerts */
+.alert{padding:12px 16px;border-radius:10px}
+.alert.success{background:#ecfdf5;border:1px solid #bbf7d0;color:#065f46}
+.alert.warn{background:#fffbeb;border:1px solid #fef3c7;color:#92400e}
+
+/* Table */
+.table{width:100%;border-collapse:collapse;font-size:13px}
+.table thead tr{background:#f9fafb}
+.table th{padding:10px 12px;text-align:left;color:var(--muted);font-weight:500;border-bottom:1px solid var(--ui-border)}
+.table td{padding:12px 16px;border-bottom:1px solid #f3f4f6;color:#374151}
+.table .actions{display:flex;gap:8px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;border:1px solid var(--ui-border);background:var(--surface);cursor:pointer}
+.btn.primary{background:var(--blue);color:#fff;border:0}
+.btn.ghost{background:transparent;border:0;color:var(--blue)}
+.btn.danger{background:var(--red-light);color:var(--red);border:1px solid rgba(0,0,0,0.03)}
+
+/* Modal / form */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:50}
+.modal{background:var(--surface);border-radius:12px;padding:24px;width:380px;max-height:80vh;overflow:auto}
+.form-row{margin-bottom:14px}
+.input,select{width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px}
+
+/* Status badge */
+.status-badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.status-tersedia{background:var(--green-light);color:var(--green)}
+.status-dipinjam{background:var(--blue-light);color:var(--blue)}
+.status-rusak{background:var(--red-light);color:var(--red)}
+.status-terlambat{background:var(--red-light);color:var(--red)}
+
+/* Pagination */
+.pager{display:flex;justify-content:flex-end;gap:6px;padding:12px}
+.pager .page{width:32px;height:32px;border-radius:6px;border:1px solid var(--ui-border);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.pager .page.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+/* Forms for scan/borrow flows */
+.scan-box{display:flex;gap:14px;align-items:center}
+.scan-card{width:72px;height:72px;border-radius:10px;border:2px dashed #d1d5db;display:flex;align-items:center;justify-content:center;font-size:28px}
+.scan-info{flex:1;padding:12px;border-radius:10px}
+.scan-info.success{background:var(--green-light);border:1px solid var(--green)}
+
+/* Responsive */
+@media (max-width:900px){
+  .sidebar{display:none}
+  .grid.cols-4{grid-template-columns:repeat(2,1fr)}
+  .grid.cols-2{grid-template-columns:1fr}
+}
+
+/* Utilities */
+.text-muted{color:var(--muted)}
+.text-xs{font-size:12px}
+.center{display:flex;align-items:center;justify-content:center}
+
+/* Small helpers mapping for quick porting from inline styles */
+.btn-scan{background:var(--blue);color:#fff;border-radius:8px;padding:8px 16px}
+.btn-add{background:var(--blue);color:#fff;border-radius:8px;padding:8px 16px}
+
+/* End file */

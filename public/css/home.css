@@ -316,6 +316,12 @@ body {
     background: #f8fafc;
 }
 
+/* Thumbnails */
+.thumb-col{width:72px}
+.thumb{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--border);display:block}
+.thumb-placeholder{width:56px;height:56px;border-radius:8px;background:#eef2ff;display:flex;align-items:center;justify-content:center;border:1px solid var(--border)}
+.thumb-placeholder i{color:var(--primary);}
+
 /* Status Badges */
 .badge {
     display: inline-flex;

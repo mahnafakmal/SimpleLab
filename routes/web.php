@@ -6,6 +6,8 @@ use App\Http\Controllers\RfidController;
 use App\Http\Controllers\PeminjamanController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminPeminjamanController;
+use App\Http\Controllers\DemoController;
+use Illuminate\Support\Facades\View;
 
 // Auth Routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -21,9 +23,17 @@ Route::post('/register/dosen', [AuthController::class, 'registerDosen'])->name('
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.store');
 
+// Public root: show the dashboard for authenticated users, otherwise show the simple static dashboard
+
+Route::get('/', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
+
+// Debug route: list all Barang as JSON (temporary)
+Route::get('/debug/barangs', function () {
+    return response()->json(App\Models\Barang::orderBy('id')->get());
+});
+
 // Protected Routes
 Route::middleware('auth')->group(function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     // RFID endpoints
     Route::post('/barang/register', [RfidController::class, 'registerBarang']);
@@ -61,3 +71,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/laporan/peminjaman', [DashboardController::class, 'reportPeminjaman'])->name('admin.laporan.peminjaman');
     // Admin room reports removed
 });
+
+    // (demo routes removed)

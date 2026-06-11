@@ -26,8 +26,8 @@
             </div>
         </div>
         <div class="user-area">
-            <span class="badge-admin">Admin</span>
-            <span class="user-email">{{ auth()->user()->email }}</span>
+            <span class="badge-admin">{{ ucfirst(optional(auth()->user())->role ?? 'Guest') }}</span>
+            <span class="user-email">{{ optional(auth()->user())->email ?? 'Guest' }}</span>
             <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                 @csrf
                 <button type="submit" class="logout-btn">
@@ -41,10 +41,10 @@
     <main class="main-container">
         <div class="header-section">
             <div class="title-row">
-                <h2>Dashboard Admin</h2>
+                <h2>Dashboard {{ auth()->check() && auth()->user()->role === 'admin' ? 'Admin' : '' }}</h2>
                 <div class="badge-admin-outline">
                     <i data-lucide="shield-check" style="width: 14px;"></i>
-                    Admin
+                    {{ auth()->check() ? ucfirst(auth()->user()->role) : 'Guest' }}
                 </div>
             </div>
             <p class="subtitle">Kelola peralatan, peminjaman, dan pengguna Laboratorium IOT Computing</p>

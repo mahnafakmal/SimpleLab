@@ -117,9 +117,33 @@
 
                     <div class="list">
                         @forelse($recentLoans as $loan)
-                            <div class="list-item">
-                                <div style="font-weight:600;">{{ $loan->barang->name }}</div>
-                                <div style="font-size:12px;color:#64748b;">Diminta oleh: {{ $loan->user->name }} — {{ $loan->created_at->diffForHumans() }}</div>
+                            <div class="list-item" style="display:flex;gap:12px;align-items:center;">
+                                <div style="width:56px;height:56px;flex-shrink:0;">
+                                    @php
+                                        $img = null;
+                                        $basePath = public_path('images/barangs/');
+                                        $candidates = [];
+                                        if(!empty($loan->barang->image)) $candidates[] = $loan->barang->image;
+                                        $candidates[] = $loan->barang->id . '.jpg';
+                                        $candidates[] = $loan->barang->id . '.png';
+                                        $candidates[] = \Illuminate\Support\Str::slug($loan->barang->name) . '.jpg';
+                                        $candidates[] = \Illuminate\Support\Str::slug($loan->barang->name) . '.png';
+                                        foreach($candidates as $c) {
+                                            if(!empty($c) && file_exists($basePath . $c)) { $img = $c; break; }
+                                        }
+                                    @endphp
+                                    @if($img)
+                                        <img src="{{ asset('images/barangs/' . $img) }}" alt="{{ $loan->barang->name }}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid #e6edf3;">
+                                    @else
+                                        <div style="width:56px;height:56px;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;border:1px solid #e6edf3;">
+                                            <i data-lucide="box" style="width:20px;height:20px;color:#64748b"></i>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div style="flex:1;">
+                                    <div style="font-weight:600;">{{ $loan->barang->name }}</div>
+                                    <div style="font-size:12px;color:#64748b;">Diminta oleh: {{ $loan->user->name }} — {{ $loan->created_at->diffForHumans() }}</div>
+                                </div>
                             </div>
                         @empty
                             <div class="empty-placeholder">
