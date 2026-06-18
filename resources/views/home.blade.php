@@ -350,7 +350,21 @@
                                 <div style="flex:1;">
                                     <h4 style="margin:0 0 2px;font-size:0.85rem;">{{ $laporan->barang->name }}</h4>
                                     <p style="margin:0;font-size:0.75rem;color:#64748b;line-height:1.2;">{{ $laporan->deskripsi }}</p>
-                                    <p style="margin:4px 0 0 0;font-size:0.7rem;color:#94a3b8;">{{ $laporan->created_at->diffForHumans() }}</p>
+                                    @php
+                                        $displayLapWhen = '-';
+                                        if(!empty($laporan->created_at)) {
+                                            try {
+                                                if($laporan->created_at instanceof \Illuminate\Support\Carbon) {
+                                                    $displayLapWhen = $laporan->created_at->diffForHumans();
+                                                } else {
+                                                    $displayLapWhen = \Illuminate\Support\Carbon::parse($laporan->created_at)->diffForHumans();
+                                                }
+                                            } catch (\Exception $e) {
+                                                $displayLapWhen = '-';
+                                            }
+                                        }
+                                    @endphp
+                                    <p style="margin:4px 0 0 0;font-size:0.7rem;color:#94a3b8;">{{ $displayLapWhen }}</p>
                                 </div>
                                 <div>
                                     @if($laporan->status === 'pending')

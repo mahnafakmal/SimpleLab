@@ -36,10 +36,24 @@
             </thead>
             <tbody>
                 @forelse($allLoans ?? [] as $loan)
+                    @php
+                        $displayStarted = '-';
+                        if(!empty($loan->started_at)) {
+                            try {
+                                if($loan->started_at instanceof \Illuminate\Support\Carbon) {
+                                    $displayStarted = $loan->started_at->format('d M Y H:i');
+                                } else {
+                                    $displayStarted = \Illuminate\Support\Carbon::parse($loan->started_at)->format('d M Y H:i');
+                                }
+                            } catch (\Exception $e) {
+                                $displayStarted = '-';
+                            }
+                        }
+                    @endphp
                     <tr>
                         <td>{{ $loan->user->name ?? '-' }}</td>
                         <td>{{ $loan->barang->name ?? '-' }}</td>
-                        <td>{{ $loan->started_at?->format('d M Y H:i') ?? '-' }}</td>
+                        <td>{{ $displayStarted }}</td>
                         <td>
                             <span class="badge badge-{{ $loan->status == 'active' ? 'info' : ($loan->status == 'returned' ? 'success' : 'danger') }}">
                                 {{ ucfirst($loan->status) }}

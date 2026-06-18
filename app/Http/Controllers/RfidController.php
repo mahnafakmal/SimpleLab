@@ -10,12 +10,13 @@ use App\Models\RiwayatLog;
 use App\Models\TagRfid;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class RfidController extends Controller
 {
     public function registerBarang(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
         if (! $user || $user->role !== 'admin') {
             abort(403, 'Hanya admin yang dapat mendaftarkan barang.');
         }
@@ -61,7 +62,7 @@ class RfidController extends Controller
 
     public function editBarang($id)
     {
-        $user = auth()->user();
+        $user = Auth::user();
         if (! $user || $user->role !== 'admin') {
             abort(403, 'Hanya admin yang dapat mengedit barang.');
         }
@@ -72,7 +73,7 @@ class RfidController extends Controller
 
     public function updateBarang(Request $request, $id)
     {
-        $user = auth()->user();
+        $user = Auth::user();
         if (! $user || $user->role !== 'admin') {
             abort(403, 'Hanya admin yang dapat memperbarui barang.');
         }
@@ -117,7 +118,7 @@ class RfidController extends Controller
 
     public function deleteBarang(Request $request, $id)
     {
-        $user = auth()->user();
+        $user = Auth::user();
         if (! $user || $user->role !== 'admin') {
             abort(403, 'Hanya admin yang dapat menghapus barang.');
         }

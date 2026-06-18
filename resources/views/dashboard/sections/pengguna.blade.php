@@ -1,63 +1,101 @@
-<div id="pengguna" class="tab-content">
-    <div class="search-container">
-        <div class="search-input-wrapper">
-            <i data-lucide="search"></i>
-            <input type="text" class="search-input" placeholder="Cari nama, email...">
+<div id="aktifitas" class="tab-content">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="label">Aktivitas Terbaru</span>
+            <span class="value">{{ isset($recentActivities) ? $recentActivities->count() : 0 }}</span>
+        </div>
+        <div class="stat-card">
+            <span class="label">Peminjaman Terbaru</span>
+            <span class="value">{{ isset($recentLoans) ? $recentLoans->count() : 0 }}</span>
         </div>
     </div>
 
-    <form action="/rfid/card/register" method="POST" class="card form-card">
-        @csrf
-        <h3>Registrasi Kartu RFID User</h3>
-        <div class="input-group">
-            <select name="user_id" class="input-custom" required>
-                <option value="">Pilih User</option>
-                @foreach($users as $user)
-                    <option value="{{ $user->id }}">{{ $user->name }} - {{ $user->email }}</option>
-                @endforeach
-            </select>
-            <input type="text" name="card_uid" class="input-custom" placeholder="UID Kartu RFID" required>
-        </div>
-        <button class="btn-primary" type="submit">Daftarkan Kartu</button>
-    </form>
-
-    <form action="{{ route('admin.users.dosen.create') }}" method="POST" class="card form-card" style="margin-top:1.25rem;">
-        @csrf
-        <h3>Buat Akun Dosen (Admin)</h3>
-        <div class="input-group">
-            <input type="text" name="name" class="input-custom" placeholder="Nama lengkap" required>
-            <input type="email" name="email" class="input-custom" placeholder="email@domain.com" required>
-        </div>
-        <div class="input-group">
-            <input type="password" name="password" class="input-custom" placeholder="Password" required>
-            <input type="password" name="password_confirmation" class="input-custom" placeholder="Konfirmasi Password" required>
-        </div>
-        <button class="btn-primary" type="submit">Buat Akun Dosen</button>
-    </form>
-
-    <div class="list-card">
-        <h3>Daftar Kartu RFID</h3>
-        @if($cards->isEmpty())
+    <div class="list-card" style="margin-top:1rem;">
+        <h3>Aktivitas Sistem</h3>
+        @if(!isset($recentActivities) || $recentActivities->isEmpty())
             <div class="empty-state">
-                <i data-lucide="credit-card" size="48"></i>
-                <p>Belum ada kartu RFID pengguna.</p>
+                <i data-lucide="activity" size="48"></i>
+                <p>Belum ada aktivitas tercatat.</p>
             </div>
         @else
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
+                            <th>Waktu</th>
                             <th>User</th>
-                            <th>Email</th>
-                            <th>UID Kartu</th>
+                            <th>Action</th>
+                            <th>Detail</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($cards as $card)
+                        @foreach($recentActivities as $act)
+                            @php
+                                $displayActWhen = '-';
+                                if(!empty($act->created_at)) {
+                                    try {
+                                        if($act->created_at instanceof \Illuminate\Support\Carbon) {
+                                            $displayActWhen = $act->created_at->isoFormat('D MMM YYYY, HH:mm');
+                                        } else {
+                                            $displayActWhen = \Illuminate\Support\Carbon::parse($act->created_at)->isoFormat('D MMM YYYY, HH:mm');
+                                        }
+                                    } catch (\Exception $e) {
+                                        $displayActWhen = '-';
+                                    }
+                                }
+                            @endphp
                             <tr>
-                                <td>{{ $card->user->name ?? '-' }}</td>
-                                <td>{{ $card->user->email ?? '-' }}</td>
-                                <td>{{ $card->uid }}</td>
+                                <td>{{ $displayActWhen }}</td>
+                                <td>{{ $act->user->name ?? ($act->user_id ? 'User#'.$act->user_id : '-') }}</td>
+                                <td>{{ $act->action }}</td>
+                                <td style="max-width:300px;word-wrap:break-word;white-space:normal;">{{ $act->notes ?? '-' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
+
+    <div class="list-card" style="margin-top:1.5rem;">
+        <h3>Peminjaman Terbaru</h3>
+        @if(!isset($recentLoans) || $recentLoans->isEmpty())
+            <div class="empty-state">
+                <i data-lucide="clock" size="48"></i>
+                <p>Belum ada peminjaman terbaru.</p>
+            </div>
+        @else
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>User</th>
+                            <th>Barang</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($recentLoans as $loan)
+                            @php
+                                $displayLoanWhen = '-';
+                                if(!empty($loan->created_at)) {
+                                    try {
+                                        if($loan->created_at instanceof \Illuminate\Support\Carbon) {
+                                            $displayLoanWhen = $loan->created_at->isoFormat('D MMM YYYY, HH:mm');
+                                        } else {
+                                            $displayLoanWhen = \Illuminate\Support\Carbon::parse($loan->created_at)->isoFormat('D MMM YYYY, HH:mm');
+                                        }
+                                    } catch (\Exception $e) {
+                                        $displayLoanWhen = '-';
+                                    }
+                                }
+                            @endphp
+                            <tr>
+                                <td>{{ $displayLoanWhen }}</td>
+                                <td>{{ $loan->user->name ?? 'User Terhapus' }}</td>
+                                <td>{{ $loan->barang->name ?? 'Barang Terhapus' }}</td>
+                                <td>{{ ucfirst($loan->status) }}</td>
                             </tr>
                         @endforeach
                     </tbody>

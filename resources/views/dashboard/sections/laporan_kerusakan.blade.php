@@ -58,8 +58,29 @@
                             @endphp
                             <tr>
                                 <td>
-                                    @if(isset($report->barang) && $report->barang->image)
-                                        <img src="/{{ $report->barang->image }}" alt="{{ $report->barang->name }}" style="width:56px;height:40px;object-fit:cover;border-radius:6px;">
+                                    @php
+                                        $imgSrc = null;
+                                        // If earlier candidate search found a filename
+                                        if(!empty($img)) {
+                                            // Normalize: if candidate already includes a path, use it; otherwise assume images/barangs/
+                                            if(\Illuminate\Support\Str::startsWith($img, ['images/', '/'])) {
+                                                $imgSrc = '/' . ltrim($img, '/');
+                                            } else {
+                                                $imgSrc = '/images/barangs/' . ltrim($img, '/');
+                                            }
+                                        } elseif(isset($report->barang) && !empty($report->barang->image)) {
+                                            // Use stored image path (could be 'images/...') or URL
+                                            $stored = $report->barang->image;
+                                            if(\Illuminate\Support\Str::startsWith($stored, ['http://', 'https://'])) {
+                                                $imgSrc = $stored;
+                                            } else {
+                                                $imgSrc = '/' . ltrim($stored, '/');
+                                            }
+                                        }
+                                    @endphp
+
+                                    @if($imgSrc)
+                                        <img src="{{ $imgSrc }}" alt="{{ $report->barang->name ?? 'Barang' }}" style="width:56px;height:40px;object-fit:cover;border-radius:6px;">
                                     @else
                                         <div style="width:56px;height:40px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;justify-content:center;">
                                             <i data-lucide="box" style="width:16px;height:16px;color:#94a3b8"></i>
@@ -74,10 +95,13 @@
                                     {{ $report->user->name ?? 'User Terhapus' }}
                                     <div>
                                         @if(isset($report->user))
-                                            <span style="font-size:10px;padding:2px 6px;border-radius:99px;font-weight:600;
-                                                {{ $report->user->role === 'dosen' ? 'background:#fff7ed;color:#ea580c;' : 'background:#f0fdf4;color:#16a34a;' }}">
-                                                {{ ucfirst($report->user->role === 'user' ? 'mahasiswa' : $report->user->role) }}
-                                            </span>
+                                            @php
+                                                $roleBadgeStyle = $report->user->role === 'dosen'
+                                                    ? 'background:#fff7ed;color:#ea580c;'
+                                                    : 'background:#f0fdf4;color:#16a34a;';
+                                                $roleLabel = ucfirst($report->user->role === 'user' ? 'mahasiswa' : $report->user->role);
+                                            @endphp
+                                            <span style="font-size:10px;padding:2px 6px;border-radius:99px;font-weight:600;{{ $roleBadgeStyle }}">{{ $roleLabel }}</span>
                                         @endif
                                     </div>
                                 </td>
@@ -94,7 +118,21 @@
                                     @endif
                                 </td>
                                 <td>
-                                    {{ $report->created_at->isoFormat('D MMM YYYY, HH:mm') }} WIB
+                                    @php
+                                        $displayReportDate = '-';
+                                        if(!empty($report->created_at)) {
+                                            try {
+                                                if($report->created_at instanceof \Illuminate\Support\Carbon) {
+                                                    $displayReportDate = $report->created_at->isoFormat('D MMM YYYY, HH:mm');
+                                                } else {
+                                                    $displayReportDate = \Illuminate\Support\Carbon::parse($report->created_at)->isoFormat('D MMM YYYY, HH:mm');
+                                                }
+                                            } catch (\Exception $e) {
+                                                $displayReportDate = '-';
+                                            }
+                                        }
+                                    @endphp
+                                    {{ $displayReportDate }} WIB
                                 </td>
                                 <td>
                                     @if($report->status === 'pending')

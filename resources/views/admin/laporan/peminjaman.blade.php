@@ -28,7 +28,10 @@
 
     <main class="main-container">
         <div class="header-section">
-            <div class="title-row"><h2>Riwayat Peminjaman Alat</h2></div>
+            <div class="title-row">
+                <h2>Riwayat Peminjaman Alat</h2>
+                <span class="meta-count">{{ $peminjaman->count() }} entri</span>
+            </div>
             <p class="subtitle">Daftar lengkap peminjaman alat (termasuk yang sudah dikembalikan).</p>
         </div>
 
@@ -51,11 +54,33 @@
                         <tbody>
                             @foreach($peminjaman as $p)
                                 <tr>
-                                    <td>{{ $p->created_at->format('Y-m-d H:i') }}</td>
-                                    <td>{{ $p->user->name ?? $p->user_id }}</td>
-                                    <td>{{ $p->barang->name ?? '-' }}</td>
+                                    @php
+                                        $displayPWhen = '-';
+                                        if(!empty($p->created_at)) {
+                                            try {
+                                                if($p->created_at instanceof \Illuminate\Support\Carbon) {
+                                                    $displayPWhen = $p->created_at->isoFormat('D MMM YYYY, HH:mm');
+                                                } else {
+                                                    $displayPWhen = \Illuminate\Support\Carbon::parse($p->created_at)->isoFormat('D MMM YYYY, HH:mm');
+                                                }
+                                            } catch (\Exception $e) {
+                                                $displayPWhen = '-';
+                                            }
+                                        }
+                                    @endphp
+                                    <td>{{ $displayPWhen }} WIB</td>
+                                    <td>{{ $p->user->name ?? 'User#'.$p->user_id }}</td>
+                                    <td>{{ $p->barang->name ?? 'Barang Terhapus' }}</td>
                                     <td>{{ $p->tagRfid->uid ?? '-' }}</td>
-                                    <td>{{ ucfirst($p->status) }}</td>
+                                    <td>
+                                        @if($p->status === 'pending')
+                                            <span class="badge badge-warning">Pending</span>
+                                        @elseif($p->status === 'borrowed' || $p->status === 'dipinjam')
+                                            <span class="badge badge-info">Dipinjam</span>
+                                        @else
+                                            <span class="badge badge-success">{{ ucfirst($p->status) }}</span>
+                                        @endif
+                                    </td>
                                     <td style="max-width:320px">{{ $p->notes ?? '-' }}</td>
                                 </tr>
                             @endforeach

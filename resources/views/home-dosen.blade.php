@@ -142,7 +142,21 @@
                                 </div>
                                 <div style="flex:1;">
                                     <div style="font-weight:600;">{{ $loan->barang->name }}</div>
-                                    <div style="font-size:12px;color:#64748b;">Diminta oleh: {{ $loan->user->name }} — {{ $loan->created_at->diffForHumans() }}</div>
+                                    @php
+                                        $displayLoanWhen = '-';
+                                        if(!empty($loan->created_at)) {
+                                            try {
+                                                if($loan->created_at instanceof \Illuminate\Support\Carbon) {
+                                                    $displayLoanWhen = $loan->created_at->diffForHumans();
+                                                } else {
+                                                    $displayLoanWhen = \Illuminate\Support\Carbon::parse($loan->created_at)->diffForHumans();
+                                                }
+                                            } catch (\Exception $e) {
+                                                $displayLoanWhen = '-';
+                                            }
+                                        }
+                                    @endphp
+                                    <div style="font-size:12px;color:#64748b;">Diminta oleh: {{ $loan->user->name }} — {{ $displayLoanWhen }}</div>
                                 </div>
                             </div>
                         @empty

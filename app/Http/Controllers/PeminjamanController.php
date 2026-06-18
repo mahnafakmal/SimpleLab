@@ -11,6 +11,7 @@ use App\Models\LogAkses;
 use App\Models\RiwayatLog;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class PeminjamanController extends Controller
 {
@@ -18,7 +19,7 @@ class PeminjamanController extends Controller
     public function borrowAlat(Request $request)
     {
         // Only Mahasiswa (role 'user') may borrow directly
-        if (! auth()->check() || auth()->user()->role !== 'user') {
+        if (! Auth::check() || Auth::user()?->role !== 'user') {
             abort(403, 'Only Mahasiswa may borrow equipment via this form.');
         }
         $request->validate([
@@ -45,7 +46,7 @@ class PeminjamanController extends Controller
 
         // Create loan record
         $peminjaman = Peminjaman::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'barang_id' => $barang->id,
             'tag_rfid_id' => $tag->id,
             'started_at' => now(),
@@ -54,14 +55,14 @@ class PeminjamanController extends Controller
 
         // Create log entries
         LogAkses::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'action' => 'Peminjaman Online',
-            'notes' => sprintf('User %s meminjam alat "%s" via portal web.', auth()->user()->name, $barang->name),
+            'notes' => sprintf('User %s meminjam alat "%s" via portal web.', Auth::user()?->name, $barang->name),
         ]);
 
         RiwayatLog::create([
             'event' => 'Peminjaman Web',
-            'detail' => sprintf('User %s meminjam barang %s.', auth()->user()->name, $barang->name),
+            'detail' => sprintf('User %s meminjam barang %s.', Auth::user()?->name, $barang->name),
         ]);
 
         return back()->with('success', sprintf('Berhasil meminjam alat %s! Harap jaga kondisi barang.', $barang->name));
@@ -70,7 +71,7 @@ class PeminjamanController extends Controller
     // Dosen requests borrowing: creates a pending peminjaman for admin approval
     public function borrowAlatDosen(Request $request)
     {
-        if (! auth()->check() || auth()->user()->role !== 'dosen') {
+        if (! Auth::check() || Auth::user()?->role !== 'dosen') {
             abort(403, 'Only Dosen may request borrowing via this form.');
         }
 
@@ -87,7 +88,7 @@ class PeminjamanController extends Controller
 
         // Create a pending peminjaman; do not set barang status yet
         $peminjaman = Peminjaman::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'barang_id' => $barang->id,
             'tag_rfid_id' => null,
             'started_at' => null,
@@ -96,7 +97,7 @@ class PeminjamanController extends Controller
 
         RiwayatLog::create([
             'event' => 'Request Peminjaman Dosen',
-            'detail' => sprintf('Dosen %s meminta peminjaman barang %s.', auth()->user()->name, $barang->name),
+            'detail' => sprintf('Dosen %s meminta peminjaman barang %s.', Auth::user()?->name, $barang->name),
         ]);
 
         return back()->with('success', 'Permintaan peminjaman telah dikirim. Tunggu persetujuan admin.');
@@ -105,7 +106,7 @@ class PeminjamanController extends Controller
     // Return equipment via Web form
     public function returnAlat($id)
     {
-        $peminjaman = Peminjaman::where('user_id', auth()->id())
+        $peminjaman = Peminjaman::where('user_id', Auth::id())
             ->where('status', 'active')
             ->findOrFail($id);
 
@@ -122,14 +123,14 @@ class PeminjamanController extends Controller
 
         // Create log entries
         LogAkses::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'action' => 'Pengembalian Online',
-            'notes' => sprintf('User %s mengembalikan alat "%s" via portal web.', auth()->user()->name, $barang->name),
+            'notes' => sprintf('User %s mengembalikan alat "%s" via portal web.', Auth::user()?->name, $barang->name),
         ]);
 
         RiwayatLog::create([
             'event' => 'Pengembalian Web',
-            'detail' => sprintf('User %s mengembalikan barang %s.', auth()->user()->name, $barang->name),
+            'detail' => sprintf('User %s mengembalikan barang %s.', Auth::user()?->name, $barang->name),
         ]);
 
         return back()->with('success', sprintf('Alat lab %s telah berhasil dikembalikan.', $barang->name));
@@ -205,7 +206,7 @@ class PeminjamanController extends Controller
 
         // 3. Create booking if clean
         PeminjamanRuangan::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'nama_ruangan' => $request->nama_ruangan,
             'tanggal' => $request->tanggal,
             'hari' => $hari,
@@ -217,14 +218,14 @@ class PeminjamanController extends Controller
 
         // Create log entries
         LogAkses::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'action' => 'Pemesanan Ruangan',
-            'notes' => sprintf('User %s membooking ruangan "%s" untuk tanggal %s.', auth()->user()->name, $request->nama_ruangan, $request->tanggal),
+            'notes' => sprintf('User %s membooking ruangan "%s" untuk tanggal %s.', Auth::user()?->name, $request->nama_ruangan, $request->tanggal),
         ]);
 
         RiwayatLog::create([
             'event' => 'Booking Ruang',
-            'detail' => sprintf('User %s membooking ruang %s.', auth()->user()->name, $request->nama_ruangan),
+            'detail' => sprintf('User %s membooking ruang %s.', Auth::user()?->name, $request->nama_ruangan),
         ]);
 
         return back()->with('success', sprintf('Berhasil memesan %s untuk tanggal %s!', $request->nama_ruangan, Carbon::parse($request->tanggal)->isoFormat('D MMM YYYY')));
@@ -233,7 +234,7 @@ class PeminjamanController extends Controller
     // Cancel Room Booking
     public function cancelRuangan($id)
     {
-        $booking = PeminjamanRuangan::where('user_id', auth()->id())
+        $booking = PeminjamanRuangan::where('user_id', Auth::id())
             ->findOrFail($id);
 
         $namaRuangan = $booking->nama_ruangan;

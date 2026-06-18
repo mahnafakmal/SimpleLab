@@ -25,7 +25,21 @@
                     <tbody>
                         @foreach($recentActivities as $activity)
                             <tr>
-                                <td>{{ $activity->created_at->format('d M Y H:i') }}</td>
+                                @php
+                                    $displayWhen = '-';
+                                    if(!empty($activity->created_at)) {
+                                        try {
+                                            if($activity->created_at instanceof \Illuminate\Support\Carbon) {
+                                                $displayWhen = $activity->created_at->format('d M Y H:i');
+                                            } else {
+                                                $displayWhen = \Illuminate\Support\Carbon::parse($activity->created_at)->format('d M Y H:i');
+                                            }
+                                        } catch (\Exception $e) {
+                                            $displayWhen = '-';
+                                        }
+                                    }
+                                @endphp
+                                <td>{{ $displayWhen }}</td>
                                 <td>{{ $activity->action }}</td>
                                 <td>{{ $activity->user->name ?? ($activity->rfidCard->uid ?? '-') }}</td>
                                 <td>{{ $activity->notes ?? '-' }}</td>

@@ -6,7 +6,6 @@ use App\Http\Controllers\RfidController;
 use App\Http\Controllers\PeminjamanController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminPeminjamanController;
-use App\Http\Controllers\DemoController;
 use App\Http\Controllers\LaporanKerusakanController;
 use Illuminate\Support\Facades\View;
 
@@ -70,6 +69,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/barang/dipinjam', [DashboardController::class, 'borrowedItems'])->name('barang.dipinjam');
     // Admin reports: history peminjaman
     Route::get('/admin/laporan/peminjaman', [DashboardController::class, 'reportPeminjaman'])->name('admin.laporan.peminjaman');
+    Route::get('/admin/laporan/registrasi', [DashboardController::class, 'reportRegistrasi'])->name('admin.laporan.registrasi');
     // Admin room reports removed
 
     // Laporan Kerusakan

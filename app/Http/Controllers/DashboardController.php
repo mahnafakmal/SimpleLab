@@ -8,8 +8,8 @@ use App\Models\Peminjaman;
 use App\Models\RfidCard;
 use App\Models\TagRfid;
 use App\Models\User;
-use App\Models\JadwalLab;
 use App\Models\LaporanKerusakan;
+use App\Models\RiwayatLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -27,8 +27,18 @@ class DashboardController extends Controller
             $users = User::all();
             $totalDosen = User::where('role', 'dosen')->count();
             $totalMahasiswa = User::where('role', 'user')->count();
-            $recentLoans = Peminjaman::with(['barang', 'user', 'tagRfid'])->latest('created_at')->take(5)->get();
-            $recentActivities = LogAkses::with(['user', 'rfidCard'])->latest('created_at')->take(5)->get();
+            // Show only active (ongoing) loans in the recent list so returned/cancelled ones disappear after update
+            $recentLoans = Peminjaman::with(['barang', 'user', 'tagRfid'])
+                ->where('status', 'active')
+                ->latest('created_at')
+                ->take(5)
+                ->get();
+            // Exclude registration actions from recentActivities so registrations appear only in reports
+            $recentActivities = LogAkses::where('action', 'not like', 'Registrasi%')
+                ->with(['user', 'rfidCard'])
+                ->latest('created_at')
+                ->take(5)
+                ->get();
             $tags = TagRfid::with('barang')->get();
             $cards = RfidCard::with('user')->get();
             $allLoans = Peminjaman::with(['barang', 'user', 'tagRfid'])->orderBy('created_at', 'desc')->get();
@@ -47,6 +57,7 @@ class DashboardController extends Controller
             $totalDamaged = Barang::where('kondisi', '!=', 'Baik')->count();
             $pendingLoans = Peminjaman::where('status', 'pending')->count();
             $allReports = LaporanKerusakan::with(['user', 'barang'])->orderBy('created_at', 'desc')->get();
+            $registrationsCount = RiwayatLog::where('event', 'like', 'Registrasi%')->count();
 
             return view('dashboard', compact(
                 'totalAssets',
@@ -65,6 +76,7 @@ class DashboardController extends Controller
                 'availableSummary',
                 'totalDamaged',
                 'pendingLoans',
+                'registrationsCount',
                 'allReports'
             ));
         }
@@ -144,6 +156,23 @@ class DashboardController extends Controller
 
         $peminjaman = Peminjaman::with(['barang', 'user', 'tagRfid'])->orderBy('created_at', 'desc')->get();
         return view('admin.laporan.peminjaman', compact('peminjaman'));
+    }
+
+    /**
+     * Admin report: registrations (user accounts created)
+     */
+    public function reportRegistrasi()
+    {
+        $user = Auth::user();
+        if (! $user || $user->role !== 'admin') {
+            abort(403);
+        }
+
+        $registrations = RiwayatLog::where('event', 'like', 'Registrasi%')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('admin.laporan.registrasi', compact('registrations'));
     }
 
     /**

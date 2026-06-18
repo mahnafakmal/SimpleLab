@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\LogAkses;
+use App\Models\RiwayatLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -118,6 +120,11 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
+        RiwayatLog::create([
+            'event' => 'Registrasi',
+            'detail' => sprintf('User %s (%s) mendaftar.', $user->name, $user->email),
+        ]);
+
         Auth::login($user);
         return redirect('/')->with('success', 'Registrasi berhasil! Selamat datang di SimpleLab.');
     }
@@ -135,6 +142,11 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => 'dosen',
+        ]);
+
+        RiwayatLog::create([
+            'event' => 'Registrasi Dosen',
+            'detail' => sprintf('Dosen %s (%s) mendaftar.', $user->name, $user->email),
         ]);
 
         Auth::login($user);
@@ -162,12 +174,20 @@ class AuthController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
-        User::create([
+        $newUser = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => 'dosen',
         ]);
+
+        // Log admin-created dosen account
+        RiwayatLog::create([
+            'event' => 'Admin Buat Dosen',
+            'detail' => sprintf('Admin %s membuat akun dosen %s (%s).', $user->name, $newUser->name, $newUser->email),
+        ]);
+
+        // No LogAkses entry for admin-created akun dosen to avoid activity noise
 
         return back()->with('success', 'Akun dosen berhasil dibuat.');
     }

@@ -58,7 +58,7 @@
             <div class="tab-item" onclick="switchTab('peralatan', this)">Peralatan</div>
             <div class="tab-item" onclick="switchTab('peminjaman', this)">Peminjaman</div>
             <div class="tab-item" onclick="switchTab('scan', this)">Scan RFID</div>
-            <div class="tab-item" onclick="switchTab('pengguna', this)">Pengguna</div>
+            <div class="tab-item" onclick="switchTab('aktifitas', this)">Aktifitas</div>
             <div class="tab-item" onclick="switchTab('laporan', this)">Laporan</div>
         </div>
 
