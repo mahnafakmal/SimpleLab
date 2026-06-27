@@ -25,23 +25,10 @@
         </div>
     </div>
 
-    <form action="/barang/register" method="POST" class="card form-card" enctype="multipart/form-data">
-        @csrf
-        <h3>Registrasi Barang dan Tag RFID</h3>
-        <div class="input-group">
-            <input type="text" name="name" class="input-custom" placeholder="Nama Barang" required>
-            <input type="text" name="kategori" class="input-custom" placeholder="Kategori" required>
-            <input type="file" name="image" accept="image/*" class="input-custom" style="padding:6px;">
-            <div style="display:flex;gap:8px;align-items:center;">
-                <input type="text" name="rfid_uid" id="rfid_uid_peralatan" class="input-custom rfid-scan-input" placeholder="Scan UID Tag RFID" autocomplete="off" required>
-                <button type="button" class="btn-scan" style="padding:6px 10px;" onclick="focusAndNotify(document.getElementById('rfid_uid_peralatan'), 'Klik field UID lalu pindai tag RFID.')">Scan</button>
-            </div>
-            <div id="rfid-live-error" style="color:#ef4444;font-size:0.85rem;display:none;"></div>
-            <div id="rfid-live-ok" style="color:#22c55e;font-size:0.85rem;display:none;"></div>
-        </div>
-        <button class="btn-primary" type="submit" id="submit-peralatan">Daftarkan Barang</button>
-        <p class="hint-text">Klik field UID dan pindai tag RFID untuk melengkapi secara cepat.</p>
-    </form>
+    <div class="card form-card">
+        <h3>Daftar Peralatan</h3>
+        <p class="hint-text">Semua pendaftaran barang sekarang dilakukan di tab <strong>Scan RFID</strong>. Silakan buka tab Scan untuk mendaftarkan aset baru dengan tag RFID.</p>
+    </div>
 
     <div class="list-card">
         <h3>Daftar Aset RFID</h3>
