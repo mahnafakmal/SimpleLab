@@ -15,6 +15,32 @@ use Illuminate\Support\Facades\Auth;
 
 class PeminjamanController extends Controller
 {
+    // Show borrowing form for regular users
+    public function showBorrowForm()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            abort(401);
+        }
+        
+        // Get available equipment
+        $barangs = Barang::where('status', 'available')->get();
+        
+        // Get user's active loans
+        $activeLoans = Peminjaman::where('user_id', $user->id)
+            ->where('status', 'active')
+            ->with('barang')
+            ->get();
+        
+        return view('equipment.borrow', compact('barangs', 'activeLoans', 'user'));
+    }
+
+    // Process borrowing request
+    public function processBorrow(Request $request)
+    {
+        return $this->borrowAlat($request);
+    }
+    
     // Borrow equipment via Web form
     public function borrowAlat(Request $request)
     {

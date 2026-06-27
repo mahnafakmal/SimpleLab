@@ -31,6 +31,11 @@
             <span class="label">Permintaan Pending</span>
             <span class="value" style="color: #f59e0b;">{{ $pendingLoans ?? 0 }}</span>
         </div>
+        <div class="stat-card" onclick="switchTab('admin_peminjaman')" style="cursor: pointer;">
+            <div class="icon-box" style="background: #fef2f2; color: #dc2626;"><i data-lucide="alarm-clock"></i></div>
+            <span class="label">Terlambat Dikembalikan</span>
+            <span class="value" style="color: #dc2626;">{{ isset($overdueLoans) ? $overdueLoans->count() : 0 }}</span>
+        </div>
         <div class="stat-card" data-api="{{ route('api.admin.users') }}" data-role="user" style="cursor:pointer;" title="Lihat akun mahasiswa">
             <div class="icon-box" style="background: #f0f9ff; color: #0ea5e9;"><i data-lucide="users"></i></div>
             <span class="label">Total Mahasiswa</span>

@@ -383,6 +383,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('equipment.borrow') ? 'active' : '' }}" href="{{ route('equipment.borrow') }}">
+                            <i class="bi bi-hand-thumbs-up"></i> Peminjaman Barang
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('equipment.return') ? 'active' : '' }}" href="{{ route('equipment.return') }}">
                             <i class="bi bi-arrow-counterclockwise"></i> Pengembalian Alat
                         </a>

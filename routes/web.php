@@ -85,6 +85,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/laporan-kerusakan', [LaporanKerusakanController::class, 'store'])->name('laporan.kerusakan.store');
     Route::post('/admin/laporan-kerusakan/{id}/status', [LaporanKerusakanController::class, 'updateStatus'])->name('admin.laporan.kerusakan.status');
 
+    // Equipment Borrowing Routes (Web Interface)
+    Route::get('/equipment/borrow', [PeminjamanController::class, 'showBorrowForm'])->name('equipment.borrow');
+    Route::post('/equipment/borrow/process', [PeminjamanController::class, 'processBorrow'])->name('equipment.borrow.process');
+    
     // Equipment Return Routes (RFID Scanner)
     Route::get('/equipment/return', [EquipmentReturnController::class, 'showReturnForm'])->name('equipment.return');
     Route::post('/equipment/return/scan', [EquipmentReturnController::class, 'processScan'])->name('equipment.return.scan');

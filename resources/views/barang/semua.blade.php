@@ -1,76 +1,152 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Semua Alat - SimpleLab</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-        @vite('resources/css/home.css')
-    @else
-        <link rel="stylesheet" href="{{ asset('css/home.css') }}">
-    @endif
-</head>
-<body>
-    <nav class="top-nav">
-        <div class="logo-area">
-            <div class="logo-icon"><i data-lucide="flask-conical"></i></div>
-            <div class="logo-text"><h1>SimpleLab</h1><p>Lab IOT Computing</p></div>
-        </div>
-        <div class="user-area">
-            <span class="badge-user">{{ auth()->user()->role === 'dosen' ? 'Dosen' : 'Mahasiswa' }}</span>
-            <span class="user-email">{{ auth()->user()->email }}</span>
-            <form action="{{ route('logout') }}" method="POST" style="display:inline">@csrf<button type="submit" class="logout-btn">Logout</button></form>
-        </div>
-    </nav>
+@extends('layouts.app-enhanced')
 
-    <main class="main-container">
-        <div class="header-section">
-            <div class="title-row"><h2>Semua Alat Laboratorium</h2></div>
-            <p class="subtitle">Total aset: {{ $totalAssets ?? 0 }} — daftar lengkap seluruh peralatan.</p>
-        </div>
+@section('title', 'Semua Alat - SimpleLab')
 
-        <div class="list-card">
-            <h3>Daftar Semua Alat</h3>
-            @if($items->isEmpty())
-                <div class="empty-state"><i data-lucide="package-open" size="48"></i><p>Belum ada data alat.</p></div>
-            @else
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Gambar</th>
-                                <th>Nama</th>
-                                <th>Kategori</th>
-                                <th>Kondisi</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($items as $it)
-                                <tr>
-                                    <td>
-                                        @if($it->image)
-                                            <img src="/{{ $it->image }}" alt="{{ $it->name }}" style="width:56px;height:40px;object-fit:cover;border-radius:6px;">
-                                        @else
-                                            <div style="width:56px;height:40px;background:#f3f4f6;border-radius:6px;display:inline-block;"></div>
-                                        @endif
-                                    </td>
-                                    <td>{{ $it->name }}</td>
-                                    <td>{{ $it->kategori ?? '-' }}</td>
-                                    <td>{{ $it->kondisi ?? '-' }}</td>
-                                    <td>{{ ucfirst($it->status ?? 'unknown') }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
-        </div>
-    </main>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script>lucide.createIcons();</script>
-</body>
-</html>
+@section('css')
+<style>
+    .items-table {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .items-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .items-table thead {
+        background-color: #003366;
+        color: white;
+    }
+
+    .items-table th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .items-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .items-table tbody tr:hover {
+        background-color: rgba(0, 51, 102, 0.02);
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .status-available {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-borrowed {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-damaged {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h2 {
+        color: #003366;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: #666;
+        margin: 0;
+    }
+
+    .no-items {
+        text-align: center;
+        padding: 3rem;
+        color: #999;
+    }
+</style>
+@endsection
+
+@section('content')
+<div class="page-header">
+    <h2><i class="bi bi-boxes"></i> Semua Alat Laboratorium</h2>
+    <p>Total aset: <strong>{{ $totalAssets ?? 0 }}</strong> — Daftar lengkap seluruh peralatan laboratorium.</p>
+</div>
+
+@if($items->isEmpty())
+<div class="no-items">
+    <i class="bi bi-inbox" style="font-size: 3rem; color: #ddd; margin-bottom: 1rem; display: block;"></i>
+    <p>Belum ada data alat di dalam sistem.</p>
+</div>
+@else
+<div class="items-table">
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 80px;">Gambar</th>
+                    <th>Nama Alat</th>
+                    <th>Kategori</th>
+                    <th>Kondisi</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($items as $it)
+                <tr>
+                    <td>
+                        @if($it->image)
+                            <img src="/{{ $it->image }}" alt="{{ $it->name }}" style="width:56px;height:40px;object-fit:cover;border-radius:6px;">
+                        @else
+                            <div style="width:56px;height:40px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;justify-content:center;">
+                                <i class="bi bi-image" style="color: #ccc;"></i>
+                            </div>
+                        @endif
+                    </td>
+                    <td><strong>{{ $it->name }}</strong></td>
+                    <td>{{ $it->kategori ?? '-' }}</td>
+                    <td>{{ $it->kondisi ?? 'Baik' }}</td>
+                    <td>
+                        @php
+                            $statusClass = match($it->status ?? 'available') {
+                                'available' => 'status-available',
+                                'borrowed' => 'status-borrowed',
+                                'damaged' => 'status-damaged',
+                                default => 'status-available'
+                            };
+                            $statusText = match($it->status ?? 'available') {
+                                'available' => '✓ Tersedia',
+                                'borrowed' => '↻ Dipinjam',
+                                'damaged' => '⚠ Rusak',
+                                default => 'Tersedia'
+                            };
+                        @endphp
+                        <span class="status-badge {{ $statusClass }}">{{ $statusText }}</span>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+@endif
+@endsection

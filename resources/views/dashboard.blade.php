@@ -18,16 +18,16 @@
     <nav class="top-nav">
         <div class="logo-area">
             <div class="logo-icon">
-                <i data-lucide="flask-conical"></i>
+                <img src="{{ asset('images/barangs/logo-unimus.png') }}" alt="UNIMUS" style="width:44px;height:44px;object-fit:contain;border-radius:8px;">
             </div>
             <div class="logo-text">
                 <h1>SIMPLELAB</h1>
-                <p>Lab IOT Computing</p>
+                <p>Laboratorium IOT Computing</p>
             </div>
         </div>
         <div class="nav-links" style="margin-right:16px;display:flex;align-items:center;gap:12px;">
             @if(auth()->check() && auth()->user()->role === 'admin')
-                <a href="{{ route('rfid.index') }}" style="color:inherit;text-decoration:none;font-weight:600;">RFID Management</a>
+                <a href="{{ route('rfid.index') }}" style="color:inherit;text-decoration:none;font-weight:600;">Pengelolaan RFID</a>
             @endif
         </div>
         <div class="user-area">
@@ -37,7 +37,7 @@
                 @csrf
                 <button type="submit" class="logout-btn">
                     <i data-lucide="log-out" style="width: 18px;"></i>
-                    Logout
+                    Keluar
                 </button>
             </form>
         </div>
@@ -55,11 +55,21 @@
             <p class="subtitle">Kelola peralatan, peminjaman, dan pengguna Laboratorium IOT Computing</p>
         </div>
 
+        @if(isset($overdueLoans) && $overdueLoans->count() > 0)
+            <div style="margin-bottom:1rem;padding:14px 16px;border:1px solid #f59e0b;background:#fff7ed;border-radius:12px;color:#92400e;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                <div>
+                    <strong><i data-lucide="alert-triangle" style="width:16px;height:16px;margin-right:6px;"></i> Ada {{ $overdueLoans->count() }} peminjaman terlambat</strong>
+                    <div style="font-size:13px;margin-top:4px;">Barang yang belum dikembalikan melewati batas waktu.</div>
+                </div>
+                <div style="font-size:13px;">{{ $overdueLoans->take(3)->map(fn($loan) => $loan->barang->name ?? 'Barang')->join(', ') }}</div>
+            </div>
+        @endif
+
         <!-- Global RFID scanner (centralized to avoid scattered scan fields) -->
         <div id="global-rfid-scanner" style="position:fixed;bottom:24px;left:24px;z-index:10000;display:none;align-items:center;gap:8px;background:#111827;color:#fff;padding:10px;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.2);">
-            <label style="font-size:13px;margin-right:8px;color:#e5e7eb;">RFID Scanner:</label>
+            <label style="font-size:13px;margin-right:8px;color:#e5e7eb;">Pemindai RFID:</label>
             <input id="global_rfid_input" type="text" autocomplete="off" style="padding:8px 10px;border-radius:6px;border:none;min-width:220px;background:#fff;color:#111827;">
-            <button id="global_rfid_close" type="button" class="btn-scan" style="padding:6px 10px;">Close</button>
+            <button id="global_rfid_close" type="button" class="btn-scan" style="padding:6px 10px;">Tutup</button>
         </div>
         <div class="tabs-nav">
             @if(auth()->check() && auth()->user()->role === 'admin')
@@ -69,7 +79,7 @@
             <div class="tab-item" onclick="switchTab('peralatan', this)">Peralatan</div>
             <div class="tab-item" onclick="switchTab('peminjaman', this)">Peminjaman</div>
             <div class="tab-item" onclick="switchTab('scan', this)">Scan RFID</div>
-            <div class="tab-item" onclick="switchTab('aktifitas', this)">Aktifitas</div>
+            <div class="tab-item" onclick="switchTab('aktifitas', this)">Aktivitas</div>
             <div class="tab-item" onclick="switchTab('laporan', this)">Laporan</div>
         </div>
 
