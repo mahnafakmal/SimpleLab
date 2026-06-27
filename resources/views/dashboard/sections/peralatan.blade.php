@@ -12,7 +12,7 @@
             <span class="label">DIPINJAM</span>
             <span class="value" style="color: #3b82f6;">{{ $borrowed ?? 0 }}</span>
         </div>
-        <div class="stat-card" data-href="{{ route('rfid.index') }}" style="cursor:pointer;" title="Lihat daftar RFID terdaftar">
+        <div class="stat-card" data-api="{{ route('api.admin.rfid.tags') }}" style="cursor:pointer;" title="Lihat daftar RFID terdaftar">
             <span class="label">TAG RFID TERDAFTAR</span>
             <span class="value" style="color: #f59e0b;">{{ $tags->count() ?? 0 }}</span>
         </div>

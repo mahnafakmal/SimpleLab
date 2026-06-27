@@ -110,6 +110,19 @@ Route::middleware('auth')->group(function () {
             App\Models\User::select('id','name','email','role')->orderBy('name')->get()
         );
     })->name('api.admin.users');
+
+    // Lightweight JSON endpoint: list registered RFID tags for admin dashboard modal
+    Route::get('/api/admin/rfid-tags', function () {
+        $tags = App\Models\TagRfid::with('barang:id,name,status')->orderBy('id','desc')->get()->map(function($t){
+            return [
+                'id' => $t->id,
+                'uid' => $t->uid,
+                'barang' => $t->barang->name ?? null,
+                'status' => $t->barang->status ?? 'unknown'
+            ];
+        });
+        return response()->json($tags);
+    })->name('api.admin.rfid.tags');
     Route::get('/api/statistics/top-items', [StatisticsController::class, 'getTopBorrowedItems'])->name('statistics.top-items');
     Route::get('/api/statistics/condition', [StatisticsController::class, 'getConditionReport'])->name('statistics.condition');
     Route::get('/api/statistics/dashboard', [StatisticsController::class, 'getDashboardStats'])->name('statistics.dashboard');
