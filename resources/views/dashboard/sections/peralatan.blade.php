@@ -33,11 +33,13 @@
             <input type="text" name="kategori" class="input-custom" placeholder="Kategori" required>
             <input type="file" name="image" accept="image/*" class="input-custom" style="padding:6px;">
             <div style="display:flex;gap:8px;align-items:center;">
-                <input type="text" name="rfid_uid" class="input-custom rfid-scan-input" placeholder="Scan UID Tag RFID" autocomplete="off" required>
-                <button type="button" class="btn-scan" style="padding:6px 10px;" onclick="focusAndNotify(this.closest('form').querySelector('[name=rfid_uid]'), 'Klik field UID lalu pindai tag RFID.')">Scan</button>
+                <input type="text" name="rfid_uid" id="rfid_uid_peralatan" class="input-custom rfid-scan-input" placeholder="Scan UID Tag RFID" autocomplete="off" required>
+                <button type="button" class="btn-scan" style="padding:6px 10px;" onclick="focusAndNotify(document.getElementById('rfid_uid_peralatan'), 'Klik field UID lalu pindai tag RFID.')">Scan</button>
             </div>
+            <div id="rfid-live-error" style="color:#ef4444;font-size:0.85rem;display:none;"></div>
+            <div id="rfid-live-ok" style="color:#22c55e;font-size:0.85rem;display:none;"></div>
         </div>
-        <button class="btn-primary" type="submit">Daftarkan Barang</button>
+        <button class="btn-primary" type="submit" id="submit-peralatan">Daftarkan Barang</button>
         <p class="hint-text">Klik field UID dan pindai tag RFID untuk melengkapi secara cepat.</p>
     </form>
 
@@ -161,3 +163,106 @@
         @endif
     </div>
 </div>
+
+<script>
+    (function() {
+        const rfidInput = document.getElementById('rfid_uid_peralatan');
+        if (!rfidInput) return;
+        const liveError = document.getElementById('rfid-live-error');
+        const liveOk = document.getElementById('rfid-live-ok');
+        const submitBtn = document.getElementById('submit-peralatan');
+        const form = rfidInput.closest('form');
+        let rfidCheckTimer;
+        let lastValidUid = '';
+
+        function setButtonState(enabled) {
+            submitBtn.disabled = !enabled;
+        }
+
+        rfidInput.addEventListener('focus', function() {
+            this.value = '';
+            liveError.style.display = 'none';
+            liveOk.style.display = 'none';
+            lastValidUid = '';
+            setButtonState(false);
+        });
+
+        rfidInput.addEventListener('input', function() {
+            const uid = this.value.trim();
+            clearTimeout(rfidCheckTimer);
+            liveError.style.display = 'none';
+            liveOk.style.display = 'none';
+            setButtonState(false);
+
+            if (!uid) {
+                lastValidUid = '';
+                return;
+            }
+
+            if (uid === lastValidUid) {
+                setButtonState(true);
+                return;
+            }
+
+            rfidCheckTimer = setTimeout(async () => {
+                try {
+                    const res = await fetch('/api/rfid/validate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': form.querySelector('input[name=\"_token\"]').value,
+                        },
+                        body: JSON.stringify({ uid: uid }),
+                    });
+                    const data = await res.json();
+
+                    if (!data.valid) {
+                        liveError.textContent = '❌ Kode RFID belum terdaftar di database! Hubungi admin terlebih dahulu.';
+                        liveError.style.display = 'block';
+                        liveOk.style.display = 'none';
+                        lastValidUid = '';
+                        setButtonState(false);
+                    } else if (data.is_assigned) {
+                        liveError.textContent = '⚠️ RFID ini sudah terpasang pada barang lain! Lepaskan tag dari barang sebelumnya terlebih dahulu.';
+                        liveError.style.display = 'block';
+                        liveOk.style.display = 'none';
+                        lastValidUid = '';
+                        setButtonState(false);
+                    } else if (!data.is_active) {
+                        liveError.textContent = '⚠️ RFID ini sudah dinonaktifkan! Hubungi admin.';
+                        liveError.style.display = 'block';
+                        liveOk.style.display = 'none';
+                        lastValidUid = '';
+                        setButtonState(false);
+                    } else {
+                        liveOk.textContent = '✓ Kode RFID terdaftar dan tersedia untuk didaftarkan';
+                        liveOk.style.display = 'block';
+                        liveError.style.display = 'none';
+                        lastValidUid = uid;
+                        setButtonState(true);
+                    }
+                } catch (err) {
+                    console.error('RFID check failed:', err);
+                    liveError.textContent = 'Gagal cek RFID. Coba lagi.';
+                    liveError.style.display = 'block';
+                    lastValidUid = '';
+                    setButtonState(false);
+                }
+            }, 300);
+        });
+
+        form.addEventListener('submit', function(e) {
+            const uid = rfidInput.value.trim();
+            if (!uid || uid !== lastValidUid) {
+                e.preventDefault();
+                if (!uid) {
+                    liveError.textContent = '❌ Kode RFID belum terdaftar di database! Hubungi admin terlebih dahulu.';
+                    liveError.style.display = 'block';
+                }
+                setButtonState(false);
+            }
+        });
+
+        setButtonState(false);
+    })();
+</script>

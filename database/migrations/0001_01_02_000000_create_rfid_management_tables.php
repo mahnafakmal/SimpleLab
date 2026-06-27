@@ -20,7 +20,15 @@ return new class extends Migration
         Schema::create('tag_rfids', function (Blueprint $table) {
             $table->id();
             $table->string('uid')->unique();
-            $table->foreignId('barang_id')->constrained('barangs')->cascadeOnDelete();
+            // allow null barang_id for user cards; remove cascade so deletion is null-on-delete
+            $table->foreignId('barang_id')->nullable()->constrained('barangs')->nullOnDelete();
+            // optional relation to a user (for user cards)
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->string('tag_type')->default('equipment_tag');
+            $table->string('card_holder_name')->nullable();
+            $table->text('notes')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->foreignId('rfid_card_id')->nullable()->constrained('rfid_cards')->nullOnDelete();
             $table->timestamps();
         });
 

@@ -34,4 +34,34 @@ class User extends Authenticatable
     {
         return $this->hasMany(LaporanKerusakan::class);
     }
+
+    public function peminjaman()
+    {
+        return $this->hasMany(Peminjaman::class);
+    }
+
+    public function rfidCards()
+    {
+        return $this->hasMany(RfidCard::class);
+    }
+
+    // Get active loans for user
+    public function getActiveLoans()
+    {
+        return $this->peminjaman()->where('status', 'active')->get();
+    }
+
+    // Get overdue loans
+    public function getOverdueLoans()
+    {
+        return $this->getActiveLoans()->filter(function ($loan) {
+            return $loan->isOverdue();
+        });
+    }
+
+    // Check if user has any overdue items
+    public function hasOverdueItems(): bool
+    {
+        return $this->getOverdueLoans()->count() > 0;
+    }
 }

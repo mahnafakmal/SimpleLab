@@ -7,6 +7,7 @@ use App\Models\Barang;
 use App\Models\JadwalLab;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,12 +19,14 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Create admin user
-        User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@simplelab.com',
-            'password' => 'password123',
-            'role' => 'admin',
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@simplelab.com'],
+            [
+                'name' => 'Admin',
+                'password' => Hash::make('Admin12345'),
+                'role' => 'admin',
+            ]
+        );
 
         // Create test user
         User::factory()->create([

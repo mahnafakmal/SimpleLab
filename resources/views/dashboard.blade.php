@@ -21,7 +21,7 @@
                 <i data-lucide="flask-conical"></i>
             </div>
             <div class="logo-text">
-                <h1>SimpleLab</h1>
+                <h1>SIMPLELAB</h1>
                 <p>Lab IOT Computing</p>
             </div>
         </div>

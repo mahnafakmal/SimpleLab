@@ -12,6 +12,8 @@ use App\Models\LaporanKerusakan;
 use App\Models\RiwayatLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Exports\PeminjamanReportExport;
+use App\Exports\RegistrasiReportExport;
 
 class DashboardController extends Controller
 {
@@ -81,13 +83,15 @@ class DashboardController extends Controller
             ));
         }
 
-        // For regular users: display home with lab equipment, status, and schedules
+        // For regular users: display enhanced home with lab equipment, status, and schedules
         $barangs = Barang::all();
         $totalAlat = Barang::count();
         $alatTersedia = Barang::where('status', 'available')->count();
         $alatDipinjam = Barang::where('status', 'borrowed')->count();
         
-        // Jadwal removed from home view
+        // Get active and overdue loans for current user
+        $activeLoans = $user->getActiveLoans();
+        $overdueLoans = $user->getOverdueLoans();
         
         $peminjamanSaya = Peminjaman::with('barang')
             ->where('user_id', $user->id)
@@ -101,11 +105,13 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        return view('home', compact(
+        return view('dashboard-enhanced', compact(
             'barangs',
             'totalAlat',
             'alatTersedia',
             'alatDipinjam',
+            'activeLoans',
+            'overdueLoans',
             'peminjamanSaya',
             'laporanKerusakanSaya'
         ));
@@ -173,6 +179,50 @@ class DashboardController extends Controller
             ->get();
 
         return view('admin.laporan.registrasi', compact('registrations'));
+    }
+
+    /**
+     * Export peminjaman report to Excel
+     */
+    public function exportPeminjamanExcel()
+    {
+        $user = Auth::user();
+        if (! $user || $user->role !== 'admin') {
+            abort(403);
+        }
+
+        $peminjaman = Peminjaman::with(['barang', 'user', 'tagRfid'])->orderBy('created_at', 'desc')->get();
+
+        $export = new PeminjamanReportExport($peminjaman);
+        $tempFile = $export->getTempFile();
+        $filename = 'laporan-peminjaman-' . date('Y-m-d_His') . '.xlsx';
+
+        return response()->download($tempFile, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ])->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Export registrasi report to Excel
+     */
+    public function exportRegistrasiExcel()
+    {
+        $user = Auth::user();
+        if (! $user || $user->role !== 'admin') {
+            abort(403);
+        }
+
+        $registrations = RiwayatLog::where('event', 'like', 'Registrasi%')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $export = new RegistrasiReportExport($registrations);
+        $tempFile = $export->getTempFile();
+        $filename = 'laporan-registrasi-' . date('Y-m-d_His') . '.xlsx';
+
+        return response()->download($tempFile, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ])->deleteFileAfterSend(true);
     }
 
     /**
