@@ -50,6 +50,12 @@
             <p class="subtitle">Kelola peralatan, peminjaman, dan pengguna Laboratorium IOT Computing</p>
         </div>
 
+        <!-- Global RFID scanner (centralized to avoid scattered scan fields) -->
+        <div id="global-rfid-scanner" style="position:fixed;bottom:24px;left:24px;z-index:10000;display:none;align-items:center;gap:8px;background:#111827;color:#fff;padding:10px;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+            <label style="font-size:13px;margin-right:8px;color:#e5e7eb;">RFID Scanner:</label>
+            <input id="global_rfid_input" type="text" autocomplete="off" style="padding:8px 10px;border-radius:6px;border:none;min-width:220px;background:#fff;color:#111827;">
+            <button id="global_rfid_close" type="button" class="btn-scan" style="padding:6px 10px;">Close</button>
+        </div>
         <div class="tabs-nav">
             @if(auth()->check() && auth()->user()->role === 'admin')
                 <div class="tab-item" onclick="switchTab('admin_peminjaman', this)">Kelola Peminjaman</div>
@@ -134,12 +140,17 @@
         });
 
         function focusAndNotify(input, message) {
-            if (!input) {
-                return;
+            // Accept either an Element or a selector/string that resolves to an Element
+            var target = input;
+            if (typeof input === 'string') {
+                try {
+                    target = document.querySelector(input);
+                } catch (e) {
+                    target = null;
+                }
             }
-            input.focus();
-            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
+            // Ensure there is a notice element (used across both behaviours)
             var notice = document.getElementById('scan-instruction-notice');
             if (!notice) {
                 notice = document.createElement('div');
@@ -147,12 +158,69 @@
                 notice.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#1f2937;color:#fff;padding:12px 16px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.15);z-index:9999;max-width:320px;font-size:14px;';
                 document.body.appendChild(notice);
             }
+
+            // If the global scanner exists, open it and route input to the target
+            var globalScanner = document.getElementById('global-rfid-scanner');
+            var globalInput = document.getElementById('global_rfid_input');
+            if (globalScanner && globalInput && target instanceof Element) {
+                globalScanner._targetInput = target;
+                globalScanner.style.display = 'flex';
+                // clear any previous value and focus the shared scanner input
+                globalInput.value = '';
+                globalInput.focus();
+                globalInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else if (target instanceof Element) {
+                // fallback: focus the target input directly
+                target.focus();
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            // show brief instruction notice
             notice.textContent = message;
             clearTimeout(notice.hideTimer);
             notice.hideTimer = setTimeout(function () {
                 notice.remove();
             }, 3500);
         }
+
+        // Wire the global scanner input to populate the chosen target input and submit on Enter
+        (function () {
+            const scanner = document.getElementById('global-rfid-scanner');
+            const ginput = document.getElementById('global_rfid_input');
+            const closeBtn = document.getElementById('global_rfid_close');
+            if (!scanner || !ginput) return;
+
+            ginput.addEventListener('input', function () {
+                const target = scanner._targetInput;
+                if (target instanceof Element) {
+                    target.value = this.value;
+                    target.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            });
+
+            ginput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const target = scanner._targetInput;
+                    if (target instanceof Element) {
+                        const form = target.closest('form');
+                        if (form) form.submit();
+                    }
+                    scanner.style.display = 'none';
+                    scanner._targetInput = null;
+                } else if (e.key === 'Escape') {
+                    scanner.style.display = 'none';
+                    scanner._targetInput = null;
+                }
+            });
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function () {
+                    scanner.style.display = 'none';
+                    scanner._targetInput = null;
+                });
+            }
+        })();
     </script>
 </body>
 </html>
