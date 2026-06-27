@@ -108,24 +108,62 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        $validated = $request->validate([
+        $role = $request->input('role', 'user');
+        
+        $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
             'password' => 'required|min:6|confirmed',
-        ]);
+        ];
 
-        $user = User::create([
+        if ($role === 'dosen') {
+            $rules['nisn'] = 'required|string|max:50';
+        } else {
+            $rules['nim'] = 'required|string|max:50';
+            $rules['prodi'] = 'required|string|max:100';
+            $rules['semester'] = 'required|string|max:20';
+        }
+
+        $validated = $request->validate($rules);
+
+        $userData = [
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-        ]);
+            'role' => $role === 'dosen' ? 'dosen' : 'user',
+        ];
 
-        RiwayatLog::create([
-            'event' => 'Registrasi',
-            'detail' => sprintf('User %s (%s) mendaftar.', $user->name, $user->email),
-        ]);
+        if ($role === 'dosen') {
+            $userData['nisn'] = $validated['nisn'];
+            $userData['nim'] = null;
+            $userData['prodi'] = null;
+            $userData['semester'] = null;
+        } else {
+            $userData['nim'] = $validated['nim'];
+            $userData['prodi'] = $validated['prodi'];
+            $userData['semester'] = $validated['semester'];
+            $userData['nisn'] = null;
+        }
+
+        $user = User::create($userData);
+
+        if ($user->role === 'dosen') {
+            RiwayatLog::create([
+                'event' => 'Registrasi Dosen',
+                'detail' => sprintf('Dosen %s (%s) - NISN: %s mendaftar.', $user->name, $user->email, $user->nisn),
+            ]);
+        } else {
+            RiwayatLog::create([
+                'event' => 'Registrasi',
+                'detail' => sprintf('User %s (%s) - NIM: %s, Prodi: %s, Semester: %s mendaftar.', $user->name, $user->email, $user->nim, $user->prodi, $user->semester),
+            ]);
+        }
 
         Auth::login($user);
+        
+        if ($user->role === 'dosen') {
+            return redirect('/')->with('success', 'Registrasi dosen berhasil!');
+        }
         return redirect('/')->with('success', 'Registrasi berhasil! Selamat datang di SimpleLab.');
     }
 
@@ -135,6 +173,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
             'password' => 'required|min:6|confirmed',
+            'nisn' => 'required|string|max:50',
         ]);
 
         $user = User::create([
@@ -142,11 +181,12 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => 'dosen',
+            'nisn' => $validated['nisn'],
         ]);
 
         RiwayatLog::create([
             'event' => 'Registrasi Dosen',
-            'detail' => sprintf('Dosen %s (%s) mendaftar.', $user->name, $user->email),
+            'detail' => sprintf('Dosen %s (%s) - NISN: %s mendaftar.', $user->name, $user->email, $user->nisn),
         ]);
 
         Auth::login($user);

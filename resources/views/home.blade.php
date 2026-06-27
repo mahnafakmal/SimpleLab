@@ -53,6 +53,17 @@
             @if(auth()->check() && auth()->user()->role === 'dosen')
                 <p class="subtitle">Selamat datang di portal dosen SimpleLab. Kelola jadwal, pantau permintaan peminjaman, dan tinjau aktivitas laboratorium.</p>
             @else
+                <div class="student-info-meta" style="margin-top: 6px; margin-bottom: 12px; font-size: 0.9rem; color: #64748b; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; background: #ffffff; padding: 10px 16px; border-radius: 8px; border: 1px solid #e2e8f0; width: fit-content;">
+                    @if(auth()->user()->nim)
+                        <span style="display: inline-flex; align-items: center; gap: 6px;"><i data-lucide="hash" style="width: 14px; height: 14px; color: #0ea5e9;"></i> <strong>NIM:</strong> {{ auth()->user()->nim }}</span>
+                    @endif
+                    @if(auth()->user()->prodi)
+                        <span style="display: inline-flex; align-items: center; gap: 6px;"><i data-lucide="book-open" style="width: 14px; height: 14px; color: #0ea5e9;"></i> <strong>Prodi:</strong> {{ auth()->user()->prodi }}</span>
+                    @endif
+                    @if(auth()->user()->semester)
+                        <span style="display: inline-flex; align-items: center; gap: 6px;"><i data-lucide="calendar" style="width: 14px; height: 14px; color: #0ea5e9;"></i> <strong>Semester:</strong> {{ auth()->user()->semester }}</span>
+                    @endif
+                </div>
                 <p class="subtitle">Selamat datang di portal praktikan SimpleLab. Pantau status peralatan, ketersediaan alat, dan jadwal praktikum Anda.</p>
             @endif
         </div>
