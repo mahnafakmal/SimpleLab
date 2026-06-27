@@ -61,9 +61,9 @@
         <h3>Scan Masuk/Keluar Aset</h3>
         <form action="/rfid/track" method="POST">
             @csrf
-            <div class="input-group" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <div class="input-group input-row">
                 <input type="text" name="tag_uid" class="input-custom rfid-scan-input" placeholder="Scan UID Tag RFID Aset" autocomplete="off" required>
-                <button type="button" class="btn-scan" style="padding:6px 10px;" onclick="focusAndNotify(this.closest('form').querySelector('[name=tag_uid]'), 'Klik field Tag lalu pindai tag RFID.')">Scan</button>
+                <button type="button" class="btn-scan" onclick="focusAndNotify(this.closest('form').querySelector('[name=tag_uid]'), 'Klik field Tag lalu pindai tag RFID.')">Scan</button>
                 <select name="lokasi" class="input-custom" required>
                     <option value="masuk">Masuk</option>
                     <option value="keluar">Keluar</option>

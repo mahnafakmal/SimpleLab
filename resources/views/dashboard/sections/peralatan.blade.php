@@ -12,7 +12,7 @@
             <span class="label">DIPINJAM</span>
             <span class="value" style="color: #3b82f6;">{{ $borrowed ?? 0 }}</span>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" data-href="{{ route('rfid.index') }}" style="cursor:pointer;" title="Lihat daftar RFID terdaftar">
             <span class="label">TAG RFID TERDAFTAR</span>
             <span class="value" style="color: #f59e0b;">{{ $tags->count() ?? 0 }}</span>
         </div>
@@ -35,7 +35,7 @@
         @if($tags->isEmpty())
             <div class="empty-state">
                 <i data-lucide="package" size="48"></i>
-                <p>Belum ada tag RFID terdaftar.</p>
+                <p><a href="{{ route('rfid.register-equipment') }}" style="text-decoration:none;color:inherit;">Belum ada tag RFID terdaftar. Klik untuk mendaftarkan tag baru.</a></p>
             </div>
         @else
             <div class="table-responsive">

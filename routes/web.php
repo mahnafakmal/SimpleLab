@@ -104,6 +104,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/statistics/trends', [StatisticsController::class, 'getBorrowingTrends'])->name('statistics.trends');
     Route::get('/api/statistics/categories', [StatisticsController::class, 'getCategoryDistribution'])->name('statistics.categories');
     Route::get('/api/statistics/user', [StatisticsController::class, 'getUserStatistics'])->name('statistics.user');
+    // Lightweight JSON endpoint for admin: list users (used by dashboard modal)
+    Route::get('/api/admin/users', function () {
+        return response()->json(
+            App\Models\User::select('id','name','email','role')->orderBy('name')->get()
+        );
+    })->name('api.admin.users');
     Route::get('/api/statistics/top-items', [StatisticsController::class, 'getTopBorrowedItems'])->name('statistics.top-items');
     Route::get('/api/statistics/condition', [StatisticsController::class, 'getConditionReport'])->name('statistics.condition');
     Route::get('/api/statistics/dashboard', [StatisticsController::class, 'getDashboardStats'])->name('statistics.dashboard');

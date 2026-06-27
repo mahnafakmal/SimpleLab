@@ -25,6 +25,11 @@
                 <p>Lab IOT Computing</p>
             </div>
         </div>
+        <div class="nav-links" style="margin-right:16px;display:flex;align-items:center;gap:12px;">
+            @if(auth()->check() && auth()->user()->role === 'admin')
+                <a href="{{ route('rfid.index') }}" style="color:inherit;text-decoration:none;font-weight:600;">RFID Management</a>
+            @endif
+        </div>
         <div class="user-area">
             <span class="badge-admin">{{ ucfirst(optional(auth()->user())->role ?? 'Guest') }}</span>
             <span class="user-email">{{ optional(auth()->user())->email ?? 'Guest' }}</span>
@@ -159,6 +164,16 @@
                 document.body.appendChild(notice);
             }
 
+            // If no target was found, fallback to scan tab's registration input
+            if (!(target instanceof Element)) {
+                // try common fallback inputs inside current page
+                target = document.getElementById('rfid_uid_scan') || document.querySelector('.rfid-scan-input[name="tag_uid"]') || document.querySelector('.rfid-scan-input[name="card_uid"]') || null;
+                if (target) {
+                    // ensure user sees the Scan tab
+                    try { switchTab('scan'); } catch (e) {}
+                }
+            }
+
             // If the global scanner exists, open it and route input to the target
             var globalScanner = document.getElementById('global-rfid-scanner');
             var globalInput = document.getElementById('global_rfid_input');
@@ -173,6 +188,12 @@
                 // fallback: focus the target input directly
                 target.focus();
                 target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                // no useful target found — show a notice to the user
+                notice.textContent = 'Tidak ditemukan field untuk dipindai. Buka tab Scan jika ingin mendaftarkan tag.';
+                clearTimeout(notice.hideTimer);
+                notice.hideTimer = setTimeout(function () { notice.remove(); }, 3500);
+                return;
             }
 
             // show brief instruction notice
@@ -220,6 +241,114 @@
                     scanner._targetInput = null;
                 });
             }
+
+            // Ensure all existing .btn-scan buttons work even if they lack inline onclick
+            document.querySelectorAll('.btn-scan').forEach(function(btn) {
+                btn.addEventListener('click', function (e) {
+                    // if button already has an onclick inline, let it run
+                    if (btn.getAttribute('onclick')) return;
+
+                    // data-target can be a selector for the input to focus
+                    var dt = btn.getAttribute('data-target');
+                    var message = btn.getAttribute('data-message') || 'Klik field UID lalu pindai tag RFID.';
+                    var target = null;
+                    if (dt) {
+                        try { target = document.querySelector(dt); } catch (err) { target = null; }
+                    }
+                    if (!target) {
+                        // try to find input in same form
+                        var form = btn.closest('form');
+                        if (form) {
+                            target = form.querySelector('.rfid-scan-input[name="rfid_uid"]') || form.querySelector('.rfid-scan-input[name="tag_uid"]') || form.querySelector('.rfid-scan-input[name="card_uid"]') || null;
+                        }
+                    }
+                    focusAndNotify(target, message);
+                });
+            });
+        })();
+    </script>
+    <!-- Simple modal for stat details -->
+    <div id="stat-modal" style="display:none;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:20000;background:#ffffff;padding:18px;border-radius:10px;box-shadow:0 20px 50px rgba(2,6,23,0.35);max-width:720px;width:90%;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <strong id="stat-modal-title">Detail</strong>
+            <button id="stat-modal-close" style="background:transparent;border:none;font-size:18px;cursor:pointer;">✕</button>
+        </div>
+        <div id="stat-modal-body" style="max-height:58vh;overflow:auto;font-size:14px;color:#111827;"></div>
+    </div>
+    <div id="stat-modal-backdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:19999;"></div>
+
+    <script>
+        (function(){
+            function showModal(title, html) {
+                document.getElementById('stat-modal-title').textContent = title || 'Detail';
+                document.getElementById('stat-modal-body').innerHTML = html || '<p>Tidak ada data.</p>';
+                document.getElementById('stat-modal').style.display = 'block';
+                document.getElementById('stat-modal-backdrop').style.display = 'block';
+            }
+            function hideModal(){
+                document.getElementById('stat-modal').style.display = 'none';
+                document.getElementById('stat-modal-backdrop').style.display = 'none';
+            }
+            document.getElementById('stat-modal-close').addEventListener('click', hideModal);
+            document.getElementById('stat-modal-backdrop').addEventListener('click', hideModal);
+
+            // Make stat cards interactive: navigate or fetch details
+            document.querySelectorAll('.stat-card').forEach(function(card){
+                const href = card.getAttribute('data-href');
+                const api = card.getAttribute('data-api');
+                if (href) {
+                    card.style.cursor = 'pointer';
+                }
+                card.addEventListener('click', function(e){
+                    // avoid catching clicks on inner links or buttons
+                    if (e.target.closest('a') || e.target.tagName === 'A' || e.target.closest('button')) return;
+                    if (href) {
+                        window.location.href = href;
+                        return;
+                    }
+                    if (api) {
+                        // support optional role filter on the card
+                        const role = card.getAttribute('data-role');
+                        const url = role ? (api + '?role=' + encodeURIComponent(role)) : api;
+                        showModal('Memuat...', '<p>Memuat data...</p>');
+                        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                            .then(function(res){ return res.json(); })
+                            .then(function(data){
+                                if (!data) { showModal('Hasil', '<p>Tidak ada data.</p>'); return; }
+                                // If data is an array (list of users), render a table
+                                if (Array.isArray(data)) {
+                                    if (data.length === 0) { showModal('Hasil', '<p>Tidak ada akun.</p>'); return; }
+                                    var html = '<table style="width:100%;border-collapse:collapse;font-size:14px;">';
+                                    html += '<thead><tr style="text-align:left;border-bottom:1px solid #e6e6e6;"><th style="padding:8px">Nama</th><th style="padding:8px">Email</th><th style="padding:8px">Role</th></tr></thead>';
+                                    html += '<tbody>';
+                                    data.forEach(function(u){
+                                        html += '<tr style="border-bottom:1px solid #f3f4f6;">';
+                                        html += '<td style="padding:8px">' + (u.name || '-') + '</td>';
+                                        html += '<td style="padding:8px;color:#374151">' + (u.email || '-') + '</td>';
+                                        html += '<td style="padding:8px">' + (u.role || '-') + '</td>';
+                                        html += '</tr>';
+                                    });
+                                    html += '</tbody></table>';
+                                    showModal('Daftar Akun', html);
+                                    return;
+                                }
+
+                                // Fallback: object -> render key/value pairs
+                                var html = '<dl style="display:grid;grid-template-columns:1fr 2fr;gap:8px;">';
+                                for (var k in data) {
+                                    if (!Object.prototype.hasOwnProperty.call(data,k)) continue;
+                                    html += '<dt style="font-weight:600;color:#374151;">'+k+'</dt>';
+                                    html += '<dd style="margin:0;color:#111827;">'+(Array.isArray(data[k]) ? JSON.stringify(data[k]) : data[k])+'</dd>';
+                                }
+                                html += '</dl>';
+                                showModal('Hasil', html);
+                            }).catch(function(err){
+                                showModal('Gagal memuat', '<p>Terjadi kesalahan saat memuat data.</p>');
+                                console.error('Failed fetching stat api', err);
+                            });
+                    }
+                });
+            });
         })();
     </script>
 </body>

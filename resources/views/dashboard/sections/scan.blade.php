@@ -6,9 +6,9 @@
             <div class="input-group">
                 <input type="text" name="name" class="input-custom" placeholder="Nama Barang" required>
                 <input type="text" name="kategori" class="input-custom" placeholder="Kategori" required>
-                <div style="display:flex;gap:8px;align-items:center;">
+                <div class="input-row">
                     <input type="text" name="rfid_uid" id="rfid_uid_scan" class="input-custom rfid-scan-input" placeholder="Scan UID Tag RFID" autocomplete="off" required>
-                    <button type="button" class="btn-scan" style="padding:6px 10px;" onclick="focusAndNotify(document.getElementById('rfid_uid_scan'), 'Klik field UID lalu pindai tag RFID.')">Scan</button>
+                    <button type="button" class="btn-scan" onclick="focusAndNotify(document.getElementById('rfid_uid_scan'), 'Klik field UID lalu pindai tag RFID.')">Scan</button>
                 </div>
                 <div id="rfid-live-error-scan" style="color:#ef4444;font-size:0.85rem;display:none;"></div>
                 <div id="rfid-live-ok-scan" style="color:#22c55e;font-size:0.85rem;display:none;"></div>

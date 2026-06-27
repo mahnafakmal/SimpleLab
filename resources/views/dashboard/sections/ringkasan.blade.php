@@ -1,20 +1,20 @@
 <div id="ringkasan" class="tab-content active">
     <div class="stats-grid">
-        <div class="stat-card">
+        <div class="stat-card" data-href="{{ route('barang.semua') }}" style="cursor:pointer;">
             <div class="icon-box" style="background: #f1f5f9; color: #475569;"><i data-lucide="package"></i></div>
             <a href="{{ route('barang.semua') }}" style="text-decoration:none;color:inherit;display:block;">
             <span class="label">Total Unit Alat</span>
             <span class="value">{{ $totalAssets ?? 0 }}</span>
             </a>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" data-href="{{ route('barang.tersedia') }}" style="cursor:pointer;">
             <div class="icon-box" style="background: #f0fdf4; color: #22c55e;"><i data-lucide="check-circle-2"></i></div>
             <span class="label">Unit Tersedia</span>
             <a href="{{ route('barang.tersedia') }}" style="text-decoration:none;color:inherit;display:block;">
             <span class="value" style="color: #22c55e;">{{ $available ?? 0 }}</span>
             </a>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" data-href="{{ route('barang.dipinjam') }}" style="cursor:pointer;">
             <div class="icon-box" style="background: #eff6ff; color: #3b82f6;"><i data-lucide="clipboard-list"></i></div>
             <span class="label">Sedang Dipinjam</span>
             <a href="{{ route('barang.dipinjam') }}" style="text-decoration:none;color:inherit;display:block;">
@@ -31,12 +31,12 @@
             <span class="label">Permintaan Pending</span>
             <span class="value" style="color: #f59e0b;">{{ $pendingLoans ?? 0 }}</span>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" data-api="{{ route('api.admin.users') }}" data-role="user" style="cursor:pointer;" title="Lihat akun mahasiswa">
             <div class="icon-box" style="background: #f0f9ff; color: #0ea5e9;"><i data-lucide="users"></i></div>
             <span class="label">Total Mahasiswa</span>
             <span class="value" style="color: #0ea5e9;">{{ $totalMahasiswa ?? $users->count() ?? 0 }}</span>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" data-api="{{ route('api.admin.users') }}" data-role="dosen" style="cursor:pointer;" title="Lihat akun dosen">
             <div class="icon-box" style="background: #fff7ed; color: #fb923c;"><i data-lucide="user-check"></i></div>
             <span class="label">Total Dosen</span>
             <span class="value" style="color: #fb923c;">{{ $totalDosen ?? 0 }}</span>
