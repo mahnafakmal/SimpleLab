@@ -45,6 +45,10 @@
                 <input type="email" name="email" class="form-input" required value="{{ old('email') }}">
             </div>
             <div class="form-group">
+                <label>NISN / NIDN (Nomor Induk Dosen)</label>
+                <input type="text" name="nisn" class="form-input" required value="{{ old('nisn') }}">
+            </div>
+            <div class="form-group">
                 <label>Password</label>
                 <input type="password" name="password" class="form-input" required>
             </div>

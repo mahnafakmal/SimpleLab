@@ -273,6 +273,58 @@
                 </div>
 
                 <div class="form-group">
+                    <label class="form-label">Daftar Sebagai</label>
+                    <div style="display: flex; gap: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem; font-weight: 500;">
+                            <input type="radio" name="role" value="user" checked onclick="toggleRoleFields('user')">
+                            Mahasiswa
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem; font-weight: 500;">
+                            <input type="radio" name="role" value="dosen" onclick="toggleRoleFields('dosen')">
+                            Dosen
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Mahasiswa Fields -->
+                <div id="mahasiswa-fields">
+                    <div class="form-group">
+                        <label class="form-label">NIM (Nomor Induk Mahasiswa)</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="hash"></i>
+                            <input type="text" name="nim" id="nim" class="form-input" placeholder="NIM Anda" value="{{ old('nim') }}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Program Studi</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="book-open"></i>
+                            <input type="text" name="prodi" id="prodi" class="form-input" placeholder="Prodi Anda (contoh: Informatika)" value="{{ old('prodi') }}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Semester</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="calendar"></i>
+                            <input type="text" name="semester" id="semester" class="form-input" placeholder="Semester Anda (contoh: 4)" value="{{ old('semester') }}" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dosen Fields -->
+                <div id="dosen-fields" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">NISN / NIDN (Nomor Induk Dosen)</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="hash"></i>
+                            <input type="text" name="nisn" id="nisn" class="form-input" placeholder="NISN/NIDN Anda" value="{{ old('nisn') }}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label class="form-label">Password</label>
                     <div class="input-wrapper">
                         <i data-lucide="lock"></i>
@@ -305,6 +357,45 @@
 
     <script>
         lucide.createIcons();
+
+        function toggleRoleFields(role) {
+            const mFields = document.getElementById('mahasiswa-fields');
+            const dFields = document.getElementById('dosen-fields');
+            const nim = document.getElementById('nim');
+            const prodi = document.getElementById('prodi');
+            const semester = document.getElementById('semester');
+            const nisn = document.getElementById('nisn');
+
+            if (role === 'user') {
+                mFields.style.display = 'block';
+                dFields.style.display = 'none';
+                nim.required = true;
+                prodi.required = true;
+                semester.required = true;
+                nisn.required = false;
+            } else {
+                mFields.style.display = 'none';
+                dFields.style.display = 'block';
+                nim.required = false;
+                prodi.required = false;
+                semester.required = false;
+                nisn.required = true;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const oldRole = "{{ old('role', 'user') }}";
+            const radioUser = document.querySelector('input[name="role"][value="user"]');
+            const radioDosen = document.querySelector('input[name="role"][value="dosen"]');
+            
+            if (oldRole === 'dosen') {
+                if (radioDosen) radioDosen.checked = true;
+                toggleRoleFields('dosen');
+            } else {
+                if (radioUser) radioUser.checked = true;
+                toggleRoleFields('user');
+            }
+        });
     </script>
 </body>
 </html>
