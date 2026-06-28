@@ -349,8 +349,10 @@
                                 {{ Auth::user()->name }}
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-person"></i> Profil</a></li>
+                                @if(Auth::user()->role !== 'admin')
+                                <li><a class="dropdown-item" href="{{ route('profile') }}"><i class="bi bi-person-badge"></i> Profil Saya</a></li>
                                 <li><hr class="dropdown-divider"></li>
+                                @endif
                                 <li>
                                     <form action="{{ route('logout') }}" method="POST" style="display:inline;">
                                         @csrf
@@ -387,11 +389,20 @@
                             <i class="bi bi-arrow-counterclockwise"></i> Pengembalian Alat
                         </a>
                     </li>
+                    @if(Auth::user()->role !== 'admin')
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('profile') ? 'active' : '' }}" href="{{ route('profile') }}">
+                            <i class="bi bi-person-circle"></i> Profil Saya
+                        </a>
+                    </li>
+                    @endif
+                    @if(Auth::user()->role === 'admin')
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('schedule.*') ? 'active' : '' }}" href="{{ route('schedule.index') }}">
                             <i class="bi bi-calendar-week"></i> Jadwal Lab
                         </a>
                     </li>
+                    @endif
                     @if(Auth::user()->role === 'admin')
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('admin.*') ? 'active' : '' }}" href="{{ route('admin.laporan.peminjaman') }}">

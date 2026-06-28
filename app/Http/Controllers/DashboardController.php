@@ -233,4 +233,28 @@ class DashboardController extends Controller
         // Room reports removed because booking feature is disabled.
         abort(404);
     }
+
+    /**
+     * Show the user profile page.
+     */
+    public function profile()
+    {
+        $user = Auth::user();
+        if (!$user || $user->role === 'admin') {
+            abort(403, 'Halaman profil hanya dapat diakses oleh Dosen dan Mahasiswa.');
+        }
+
+        // Peminjaman history (riwayat peminjaman alat)
+        $peminjaman = Peminjaman::with('barang')
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Account log history (riwayat aktivitas akun)
+        $logAkses = LogAkses::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('auth.profile', compact('user', 'peminjaman', 'logAkses'));
+    }
 }

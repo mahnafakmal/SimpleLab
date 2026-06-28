@@ -28,7 +28,12 @@
 
     <main class="main-container">
         <div class="header-section">
-            <div class="title-row"><h2>Alat yang Sedang Dipinjam</h2></div>
+            <div class="title-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <h2>Alat yang Sedang Dipinjam</h2>
+                <a href="{{ route('dashboard') }}" class="back-btn" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.75rem; color: #1e293b; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);" onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='#cbd5e1'; this.style.transform='translateX(-3px)'" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#e2e8f0'; this.style.transform='none'">
+                    <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Kembali ke Home
+                </a>
+            </div>
             <p class="subtitle">Total aset: {{ $totalAssets ?? 0 }} — berikut daftar alat yang saat ini berstatus dipinjam.</p>
         </div>
 

@@ -51,7 +51,12 @@
 
                 <div class="form-group">
                     <label for="password">Kata Sandi</label>
-                    <input id="password" type="password" name="password" class="input" placeholder="••••••••" required>
+                    <div style="position: relative;">
+                        <input id="password" type="password" name="password" class="input" placeholder="••••••••" required style="padding-right: 40px;">
+                        <button type="button" onclick="togglePasswordVisibility('password', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; color: var(--muted);">
+                            <i data-lucide="eye" style="width: 20px; height: 20px;"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -68,10 +73,24 @@
                 </div>
             </form>
 
-            <div class="muted">Belum punya akun? <a href="{{ route('register') }}" style="color:#bff7ff;text-decoration:underline;">Daftar sekarang</a></div>
+            <div class="muted">Belum punya akun? <a href="{{ route('register') }}" style="color:#1e40af;font-weight:600;text-decoration:underline;">Daftar sekarang</a></div>
         </div>
     </div>
 
-    <script>lucide.createIcons();</script>
+    <script>
+        lucide.createIcons();
+        function togglePasswordVisibility(id, btn) {
+            const input = document.getElementById(id);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
+    </script>
 </body>
 </html>

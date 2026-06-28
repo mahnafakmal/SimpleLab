@@ -70,6 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/users/dosen', [AuthController::class, 'createDosenByAdmin'])->name('admin.users.dosen.create');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
     // List available items for users/admin
     Route::get('/barang/tersedia', [DashboardController::class, 'availableItems'])->name('barang.tersedia');
     Route::get('/barang/semua', [DashboardController::class, 'allItems'])->name('barang.semua');
@@ -91,12 +92,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/equipment/active-loans', [EquipmentReturnController::class, 'getActiveLoans'])->name('equipment.active-loans');
     Route::post('/equipment/{loan}/damage', [EquipmentReturnController::class, 'reportDamage'])->name('equipment.report-damage');
 
-    // Laboratory Schedule Routes
-    Route::get('/schedule', [ScheduleController::class, 'index'])->name('schedule.index');
-    Route::get('/api/schedule', [ScheduleController::class, 'getSchedules'])->name('schedule.api');
-    Route::post('/schedule', [ScheduleController::class, 'store'])->name('schedule.store');
-    Route::put('/schedule/{id}', [ScheduleController::class, 'update'])->name('schedule.update');
-    Route::delete('/schedule/{id}', [ScheduleController::class, 'destroy'])->name('schedule.destroy');
+    // Laboratory Schedule Routes (Admin Only)
+    Route::middleware('adminonly')->group(function () {
+        Route::get('/schedule', [ScheduleController::class, 'index'])->name('schedule.index');
+        Route::get('/api/schedule', [ScheduleController::class, 'getSchedules'])->name('schedule.api');
+        Route::post('/schedule', [ScheduleController::class, 'store'])->name('schedule.store');
+        Route::put('/schedule/{id}', [ScheduleController::class, 'update'])->name('schedule.update');
+        Route::delete('/schedule/{id}', [ScheduleController::class, 'destroy'])->name('schedule.destroy');
+    });
 
     // Statistics & Charts Routes
     Route::get('/api/statistics/borrowing-frequency', [StatisticsController::class, 'getBorrowingFrequency'])->name('statistics.frequency');

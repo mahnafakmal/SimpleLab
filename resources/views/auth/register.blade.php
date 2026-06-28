@@ -326,17 +326,23 @@
 
                 <div class="form-group">
                     <label class="form-label">Password</label>
-                    <div class="input-wrapper">
+                    <div class="input-wrapper" style="position: relative;">
                         <i data-lucide="lock"></i>
-                        <input type="password" name="password" class="form-input" placeholder="Minimal 6 karakter" required>
+                        <input type="password" name="password" id="password" class="form-input" placeholder="Minimal 6 karakter" required style="padding-right: 40px;">
+                        <button type="button" onclick="togglePasswordVisibility('password', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; color: var(--text-muted);">
+                            <i data-lucide="eye" style="width: 18px; height: 18px;"></i>
+                        </button>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Konfirmasi Password</label>
-                    <div class="input-wrapper">
+                    <div class="input-wrapper" style="position: relative;">
                         <i data-lucide="lock"></i>
-                        <input type="password" name="password_confirmation" class="form-input" placeholder="Ulangi password" required>
+                        <input type="password" name="password_confirmation" id="password_confirmation" class="form-input" placeholder="Ulangi password" required style="padding-right: 40px;">
+                        <button type="button" onclick="togglePasswordVisibility('password_confirmation', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; color: var(--text-muted);">
+                            <i data-lucide="eye" style="width: 18px; height: 18px;"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -358,6 +364,19 @@
     <script>
         lucide.createIcons();
 
+        function togglePasswordVisibility(id, btn) {
+            const input = document.getElementById(id);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
+
         function toggleRoleFields(role) {
             const mFields = document.getElementById('mahasiswa-fields');
             const dFields = document.getElementById('dosen-fields');
@@ -369,17 +388,17 @@
             if (role === 'user') {
                 mFields.style.display = 'block';
                 dFields.style.display = 'none';
-                nim.required = true;
-                prodi.required = true;
-                semester.required = true;
-                nisn.required = false;
+                if(nim) nim.required = true;
+                if(prodi) prodi.required = true;
+                if(semester) semester.required = true;
+                if(nisn) nisn.required = false;
             } else {
                 mFields.style.display = 'none';
                 dFields.style.display = 'block';
-                nim.required = false;
-                prodi.required = false;
-                semester.required = false;
-                nisn.required = true;
+                if(nim) nim.required = false;
+                if(prodi) prodi.required = false;
+                if(semester) semester.required = false;
+                if(nisn) nisn.required = true;
             }
         }
 

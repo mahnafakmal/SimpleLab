@@ -140,6 +140,7 @@
             </div>
         </div>
 
+        @if(Auth::user()->role === 'admin')
         <!-- Lab Schedule Today -->
         <div class="overview-section">
             <h3 class="section-title">Jadwal Hari Ini</h3>
@@ -147,6 +148,7 @@
                 <p>Memuat jadwal...</p>
             </div>
         </div>
+        @endif
 
         <!-- Quick Actions -->
         <div class="overview-section">
@@ -158,9 +160,15 @@
                 <a href="{{ route('barang.tersedia') }}" class="btn btn-outline-primary btn-sm">
                     <i class="bi bi-box"></i> Lihat Alat Tersedia
                 </a>
+                @if(Auth::user()->role === 'admin')
                 <a href="{{ route('schedule.index') }}" class="btn btn-outline-primary btn-sm">
                     <i class="bi bi-calendar"></i> Jadwal Lab
                 </a>
+                @else
+                <a href="{{ route('profile') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-person-badge"></i> Profil Saya
+                </a>
+                @endif
             </div>
         </div>
     </div>
@@ -195,8 +203,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load active loans
     loadActiveLoans();
     
+    @if(Auth::user()->role === 'admin')
     // Load today's schedule
     loadTodaySchedule();
+    @endif
     
     // Load top items
     loadTopItems();
