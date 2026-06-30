@@ -129,6 +129,38 @@ class DashboardController extends Controller
         ));
     }
 
+    public function showProfile()
+    {
+        $user = Auth::user();
+
+        if (! $user) {
+            abort(403);
+        }
+
+        $activeLoans = $user->getActiveLoans();
+        $overdueLoans = $user->getOverdueLoans();
+
+        $peminjamanSaya = Peminjaman::with('barang')
+            ->where('user_id', $user->id)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        $laporanKerusakanSaya = LaporanKerusakan::with('barang')
+            ->where('user_id', $user->id)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('profile', compact(
+            'user',
+            'activeLoans',
+            'overdueLoans',
+            'peminjamanSaya',
+            'laporanKerusakanSaya'
+        ));
+    }
+
     /**
      * Show list of available Barang with total assets count.
      */

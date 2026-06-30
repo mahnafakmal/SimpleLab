@@ -331,7 +331,7 @@
         <div class="container-fluid">
             <nav class="navbar navbar-expand-lg navbar-dark">
                 <div class="navbar-brand">
-                    <img src="https://unimus.ac.id/wp-content/uploads/2021/10/logo-unimus-new.png" alt="UNIMUS Logo">
+                    <img src="{{ asset('images/barangs/logo-unimus.png') }}" alt="UNIMUS Logo" onerror="this.onerror=null;this.src='{{ asset('images/barangs/logo-unimus.png') }}';">
                     <span>
                         SimpleLab
                         <small>Laboratory Equipment Management</small>
@@ -349,7 +349,7 @@
                                 {{ Auth::user()->name }}
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-person"></i> Profil</a></li>
+                                <li><a class="dropdown-item" href="{{ route('profile') }}"><i class="bi bi-person"></i> Profil</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form action="{{ route('logout') }}" method="POST" style="display:inline;">

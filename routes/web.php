@@ -70,6 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/users/dosen', [AuthController::class, 'createDosenByAdmin'])->name('admin.users.dosen.create');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/profile', [DashboardController::class, 'showProfile'])->name('profile');
     // List available items for users/admin
     Route::get('/barang/tersedia', [DashboardController::class, 'availableItems'])->name('barang.tersedia');
     Route::get('/barang/semua', [DashboardController::class, 'allItems'])->name('barang.semua');
