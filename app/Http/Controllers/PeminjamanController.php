@@ -15,32 +15,25 @@ use Illuminate\Support\Facades\Auth;
 
 class PeminjamanController extends Controller
 {
-    // Show borrowing form for regular users
+    // Display borrow form with available equipment
     public function showBorrowForm()
     {
-        $user = Auth::user();
-        if (!$user) {
-            abort(401);
-        }
-        
-        // Get available equipment
-        $barangs = Barang::where('status', 'available')->get();
-        
-        // Get user's active loans
-        $activeLoans = Peminjaman::where('user_id', $user->id)
+        $barangs = Barang::where('status', 'available')->where('kondisi', 'Baik')->get();
+        $activeLoans = Peminjaman::where('user_id', Auth::id())
             ->where('status', 'active')
-            ->with('barang')
             ->get();
-        
-        return view('equipment.borrow', compact('barangs', 'activeLoans', 'user'));
+        return view('equipment.borrow', compact('barangs', 'activeLoans'));
     }
 
-    // Process borrowing request
-    public function processBorrow(Request $request)
+    // Display return form with active loans
+    public function showReturnForm()
     {
-        return $this->borrowAlat($request);
+        $activeLoans = Peminjaman::where('user_id', Auth::id())
+            ->where('status', 'active')
+            ->get();
+        return redirect('/equipment/borrow');
     }
-    
+
     // Borrow equipment via Web form
     public function borrowAlat(Request $request)
     {
@@ -50,9 +43,13 @@ class PeminjamanController extends Controller
         }
         $request->validate([
             'barang_id' => 'required|exists:barangs,id',
+            'waktu_mulai' => ['required', 'date_format:Y-m-d\TH:i', 'after_or_equal:now'],
+            'waktu_selesai' => ['required', 'date_format:Y-m-d\TH:i', 'after:waktu_mulai'],
         ]);
 
         $barang = Barang::findOrFail($request->barang_id);
+        $waktuMulai = Carbon::parse($request->waktu_mulai);
+        $waktuSelesai = Carbon::parse($request->waktu_selesai);
 
         if ($barang->status !== 'available') {
             return back()->with('error', 'Alat lab ini sedang tidak tersedia atau sudah dipinjam.');
@@ -75,7 +72,8 @@ class PeminjamanController extends Controller
             'user_id' => Auth::id(),
             'barang_id' => $barang->id,
             'tag_rfid_id' => $tag->id,
-            'started_at' => now(),
+            'started_at' => $waktuMulai,
+            'due_date' => $waktuSelesai,
             'status' => 'active',
         ]);
 
@@ -91,7 +89,7 @@ class PeminjamanController extends Controller
             'detail' => sprintf('User %s meminjam barang %s.', Auth::user()?->name, $barang->name),
         ]);
 
-        return back()->with('success', sprintf('Berhasil meminjam alat %s! Harap jaga kondisi barang.', $barang->name));
+        return back()->with('success', sprintf('Berhasil meminjam alat %s untuk periode %s sampai %s.', $barang->name, $waktuMulai->isoFormat('D MMM YYYY, HH:mm'), $waktuSelesai->isoFormat('D MMM YYYY, HH:mm')));
     }
 
     // Dosen requests borrowing: creates a pending peminjaman for admin approval
@@ -103,10 +101,14 @@ class PeminjamanController extends Controller
 
         $request->validate([
             'barang_id' => 'required|exists:barangs,id',
+            'waktu_mulai' => ['required', 'date_format:Y-m-d\TH:i', 'after_or_equal:now'],
+            'waktu_selesai' => ['required', 'date_format:Y-m-d\TH:i', 'after:waktu_mulai'],
             'notes' => 'nullable|string|max:500'
         ]);
 
         $barang = Barang::findOrFail($request->barang_id);
+        $waktuMulai = Carbon::parse($request->waktu_mulai);
+        $waktuSelesai = Carbon::parse($request->waktu_selesai);
 
         if ($barang->status !== 'available') {
             return back()->with('error', 'Alat sedang tidak tersedia.');
@@ -117,7 +119,8 @@ class PeminjamanController extends Controller
             'user_id' => Auth::id(),
             'barang_id' => $barang->id,
             'tag_rfid_id' => null,
-            'started_at' => null,
+            'started_at' => $waktuMulai,
+            'due_date' => $waktuSelesai,
             'status' => 'pending',
         ]);
 

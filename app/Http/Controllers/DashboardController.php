@@ -12,9 +12,6 @@ use App\Models\LaporanKerusakan;
 use App\Models\RiwayatLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use App\Exports\PeminjamanReportExport;
-use App\Exports\RegistrasiReportExport;
 
 class DashboardController extends Controller
 {
@@ -59,16 +56,6 @@ class DashboardController extends Controller
             // Fetch dynamic damage reports count and pending requests count
             $totalDamaged = Barang::where('kondisi', '!=', 'Baik')->count();
             $pendingLoans = Peminjaman::where('status', 'pending')->count();
-            $overdueLoans = collect();
-
-            if (Schema::hasColumn('peminjamans', 'due_date')) {
-                $overdueLoans = Peminjaman::where('status', 'active')
-                    ->whereNotNull('due_date')
-                    ->where('due_date', '<', now())
-                    ->with(['barang', 'user'])
-                    ->orderBy('due_date', 'asc')
-                    ->get();
-            }
             $allReports = LaporanKerusakan::with(['user', 'barang'])->orderBy('created_at', 'desc')->get();
             $registrationsCount = RiwayatLog::where('event', 'like', 'Registrasi%')->count();
 
@@ -89,21 +76,18 @@ class DashboardController extends Controller
                 'availableSummary',
                 'totalDamaged',
                 'pendingLoans',
-                'overdueLoans',
                 'registrationsCount',
                 'allReports'
             ));
         }
 
-        // For regular users: display enhanced home with lab equipment, status, and schedules
+        // For regular users: display home with lab equipment, status, and schedules
         $barangs = Barang::all();
         $totalAlat = Barang::count();
         $alatTersedia = Barang::where('status', 'available')->count();
         $alatDipinjam = Barang::where('status', 'borrowed')->count();
         
-        // Get active and overdue loans for current user
-        $activeLoans = $user->getActiveLoans();
-        $overdueLoans = $user->getOverdueLoans();
+        // Jadwal removed from home view
         
         $peminjamanSaya = Peminjaman::with('barang')
             ->where('user_id', $user->id)
@@ -111,52 +95,27 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
+        // Get overdue loans for current user
+        $overdueLoans = Peminjaman::with('barang')
+            ->where('user_id', $user->id)
+            ->where('status', 'active')
+            ->whereNotNull('due_date')
+            ->where('due_date', '<', now())
+            ->get();
+
         $laporanKerusakanSaya = LaporanKerusakan::with('barang')
             ->where('user_id', $user->id)
             ->latest()
             ->take(5)
             ->get();
 
-        return view('dashboard-enhanced', compact(
+        return view('home', compact(
             'barangs',
             'totalAlat',
             'alatTersedia',
             'alatDipinjam',
-            'activeLoans',
-            'overdueLoans',
             'peminjamanSaya',
-            'laporanKerusakanSaya'
-        ));
-    }
-
-    public function showProfile()
-    {
-        $user = Auth::user();
-
-        if (! $user) {
-            abort(403);
-        }
-
-        $activeLoans = $user->getActiveLoans();
-        $overdueLoans = $user->getOverdueLoans();
-
-        $peminjamanSaya = Peminjaman::with('barang')
-            ->where('user_id', $user->id)
-            ->latest()
-            ->take(5)
-            ->get();
-
-        $laporanKerusakanSaya = LaporanKerusakan::with('barang')
-            ->where('user_id', $user->id)
-            ->latest()
-            ->take(5)
-            ->get();
-
-        return view('profile', compact(
-            'user',
-            'activeLoans',
             'overdueLoans',
-            'peminjamanSaya',
             'laporanKerusakanSaya'
         ));
     }
@@ -223,50 +182,6 @@ class DashboardController extends Controller
             ->get();
 
         return view('admin.laporan.registrasi', compact('registrations'));
-    }
-
-    /**
-     * Export peminjaman report to Excel
-     */
-    public function exportPeminjamanExcel()
-    {
-        $user = Auth::user();
-        if (! $user || $user->role !== 'admin') {
-            abort(403);
-        }
-
-        $peminjaman = Peminjaman::with(['barang', 'user', 'tagRfid'])->orderBy('created_at', 'desc')->get();
-
-        $export = new PeminjamanReportExport($peminjaman);
-        $tempFile = $export->getTempFile();
-        $filename = 'laporan-peminjaman-' . date('Y-m-d_His') . '.xlsx';
-
-        return response()->download($tempFile, $filename, [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        ])->deleteFileAfterSend(true);
-    }
-
-    /**
-     * Export registrasi report to Excel
-     */
-    public function exportRegistrasiExcel()
-    {
-        $user = Auth::user();
-        if (! $user || $user->role !== 'admin') {
-            abort(403);
-        }
-
-        $registrations = RiwayatLog::where('event', 'like', 'Registrasi%')
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        $export = new RegistrasiReportExport($registrations);
-        $tempFile = $export->getTempFile();
-        $filename = 'laporan-registrasi-' . date('Y-m-d_His') . '.xlsx';
-
-        return response()->download($tempFile, $filename, [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        ])->deleteFileAfterSend(true);
     }
 
     /**

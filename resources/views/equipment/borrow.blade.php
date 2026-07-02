@@ -280,6 +280,14 @@
                 <form action="{{ route('web.peminjaman.alat') }}" method="POST" style="margin: 0;">
                     @csrf
                     <input type="hidden" name="barang_id" value="{{ $barang->id }}">
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label for="waktu_mulai_{{ $barang->id }}" style="display:block;font-size:0.85rem;margin-bottom:0.35rem;">Waktu Mulai</label>
+                        <input type="datetime-local" name="waktu_mulai" id="waktu_mulai_{{ $barang->id }}" class="form-control-custom" required min="{{ now()->format('Y-m-d\\TH:i') }}">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label for="waktu_selesai_{{ $barang->id }}" style="display:block;font-size:0.85rem;margin-bottom:0.35rem;">Waktu Selesai</label>
+                        <input type="datetime-local" name="waktu_selesai" id="waktu_selesai_{{ $barang->id }}" class="form-control-custom" required>
+                    </div>
                     <div class="equipment-actions">
                         <button type="submit" class="btn-borrow">
                             <i class="bi bi-plus-circle"></i> Pinjam

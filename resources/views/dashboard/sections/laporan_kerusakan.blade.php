@@ -1,18 +1,18 @@
 <div>
     <div class="stats-grid">
-        <div class="stat-card" data-href="{{ route('damage-reports.index') }}">
+        <div class="stat-card">
             <span class="label">TOTAL LAPORAN</span>
             <span class="value">{{ $allReports->count() }}</span>
         </div>
-        <div class="stat-card" data-href="{{ route('damage-reports.index') }}?status=pending">
+        <div class="stat-card">
             <span class="label">PENDING</span>
             <span class="value" style="color: #f59e0b;">{{ $allReports->where('status', 'pending')->count() }}</span>
         </div>
-        <div class="stat-card" data-href="{{ route('damage-reports.index') }}?status=proses">
+        <div class="stat-card">
             <span class="label">DALAM PROSES</span>
             <span class="value" style="color: #3b82f6;">{{ $allReports->where('status', 'proses')->count() }}</span>
         </div>
-        <div class="stat-card" data-href="{{ route('damage-reports.index') }}?status=selesai">
+        <div class="stat-card">
             <span class="label">SELESAI DIPERBAIKI</span>
             <span class="value" style="color: #22c55e;">{{ $allReports->where('status', 'selesai')->count() }}</span>
         </div>
@@ -96,15 +96,12 @@
                                     <div>
                                         @if(isset($report->user))
                                             @php
-                                                $roleClass = $report->user->role === 'dosen' ? 'role-badge-dosen' : 'role-badge-mahasiswa';
+                                                $roleBadgeStyle = $report->user->role === 'dosen'
+                                                    ? 'background:#fff7ed;color:#ea580c;'
+                                                    : 'background:#f0fdf4;color:#16a34a;';
                                                 $roleLabel = ucfirst($report->user->role === 'user' ? 'mahasiswa' : $report->user->role);
                                             @endphp
-                                            <span class="role-badge {{ $roleClass }}">{{ $roleLabel }}</span>
-                                            <style>
-                                                .role-badge{font-size:10px;padding:2px 6px;border-radius:99px;font-weight:600;display:inline-block}
-                                                .role-badge-dosen{background:#fff7ed;color:#ea580c}
-                                                .role-badge-mahasiswa{background:#f0fdf4;color:#16a34a}
-                                            </style>
+                                            <span style="font-size:10px;padding:2px 6px;border-radius:99px;font-weight:600;{{ $roleBadgeStyle }}">{{ $roleLabel }}</span>
                                         @endif
                                     </div>
                                 </td>

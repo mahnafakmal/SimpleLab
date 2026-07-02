@@ -2,14 +2,14 @@
     <form action="/peminjaman/borrow" method="POST" class="card form-card">
         @csrf
         <h3>Proses Peminjaman Aset</h3>
-        <div class="input-group input-row">
-            <div class="input-row">
+        <div class="input-group" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <div style="display:flex;gap:6px;align-items:center;">
                 <input type="text" name="card_uid" class="input-custom rfid-scan-input" placeholder="Scan UID Kartu RFID User" autocomplete="off" required>
-                <button type="button" class="btn-scan" onclick="focusAndNotify(this.closest('form').querySelector('[name=card_uid]'), 'Klik field Kartu lalu pindai kartu RFID.')">Scan</button>
+                <button type="button" class="btn-scan" style="padding:6px 10px;" onclick="focusAndNotify(this.closest('form').querySelector('[name=card_uid]'), 'Klik field Kartu lalu pindai kartu RFID.')">Scan</button>
             </div>
-            <div class="input-row">
+            <div style="display:flex;gap:6px;align-items:center;">
                 <input type="text" name="tag_uid" class="input-custom rfid-scan-input" placeholder="Scan UID Tag RFID Barang" autocomplete="off" required>
-                <button type="button" class="btn-scan" onclick="focusAndNotify(this.closest('form').querySelector('[name=tag_uid]'), 'Klik field Tag lalu pindai tag RFID.')">Scan</button>
+                <button type="button" class="btn-scan" style="padding:6px 10px;" onclick="focusAndNotify(this.closest('form').querySelector('[name=tag_uid]'), 'Klik field Tag lalu pindai tag RFID.')">Scan</button>
             </div>
         </div>
         <button class="btn-primary" type="submit">Pinjam Aset</button>
