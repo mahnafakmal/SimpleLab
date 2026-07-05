@@ -1,14 +1,15 @@
 :root {
-    --primary: #2563eb;
-    --primary-dark: #1e40af;
-    --bg: #f6f9fb;
+    --primary: #1e40af;
+    --primary-dark: #0f2347;
+    --bg: #f8fafc;
     --card-bg: #ffffff;
-    --text-main: #1e293b;
+    --text-main: #0f172a;
     --text-muted: #64748b;
-    --border: #e2e8f0;
-    --success: #22c55e;
+    --border: #f1f5f9;
+    --success: #10b981;
     --danger: #ef4444;
     --warning: #f59e0b;
+    --accent: #ff6b35;
 }
 
 * {
@@ -26,16 +27,17 @@ body {
 
 /* Top Navigation */
 .top-nav {
-    background: linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,255,255,0.95));
-    border-bottom: 1px solid rgba(226,232,240,0.8);
+    background: #0f2347;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     padding: 0.85rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: sticky;
     top: 0;
-    z-index: 50;
-    box-shadow: 0 4px 18px rgba(16,24,40,0.04);
+    z-index: 500;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.15);
+    color: white;
 }
 
 .logo-area {
@@ -45,24 +47,26 @@ body {
 }
 
 .logo-icon {
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    background: linear-gradient(135deg, var(--accent), #ff8c5a);
     color: white;
-    padding: 0.6rem;
-    border-radius: 0.85rem;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .logo-text h1 {
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 700;
     line-height: 1.2;
+    color: white;
+    letter-spacing: 0.5px;
 }
 
 .logo-text p {
     font-size: 0.75rem;
-    color: var(--text-muted);
+    color: #94a3b8;
 }
 
 .user-area {
@@ -72,17 +76,18 @@ body {
 }
 
 .badge-admin {
-    background: #e0f2fe;
-    color: var(--primary-dark);
+    background: rgba(255, 107, 53, 0.15);
+    color: var(--accent);
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 600;
+    border: 1px solid rgba(255, 107, 53, 0.2);
 }
 
 .user-email {
     font-size: 0.875rem;
-    color: var(--text-muted);
+    color: #94a3b8;
 }
 
 .logout-btn {
@@ -90,7 +95,9 @@ body {
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
-    border: 1px solid var(--border);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: transparent;
+    color: #cbd5e1;
     border-radius: 0.5rem;
     font-size: 0.875rem;
     font-weight: 500;
@@ -99,7 +106,8 @@ body {
 }
 
 .logout-btn:hover {
-    background: #f1f5f9;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
 }
 
 /* Main Content */

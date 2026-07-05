@@ -69,33 +69,118 @@
 @section('content')
 <div class="row mb-4">
     <div class="col-12">
-        <div class="alert alert-info" role="alert">
-            <i class="bi bi-info-circle"></i> <strong>Selamat datang!</strong> 
-            Anda memiliki {{ $activeLoans->count() }} peminjaman aktif.
-            @if($overdueLoans->count() > 0)
-            <span class="text-danger"><strong>⚠️ {{ $overdueLoans->count() }} barang terlambat dikembalikan!</strong></span>
-            @endif
+        <div class="card bg-white border-0 shadow-sm p-4 d-flex flex-md-row justify-content-between align-items-md-center gap-3" style="border-radius: 16px;">
+            <div>
+                <h4 class="fw-bold mb-1" style="color: var(--unimus-primary);">Selamat Datang, {{ Auth::user()->name }}!</h4>
+                <p class="text-muted mb-0 small">Pantau status alat laboratorium, jadwal praktik, dan ajukan peminjaman dengan mudah.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <span class="badge bg-primary-subtle text-primary px-3 py-2 fs-6" style="border-radius: 30px; display: flex; align-items: center; gap: 4px;">
+                    <i class="bi bi-box"></i> {{ $activeLoans->count() }} Peminjaman Aktif
+                </span>
+                @if($overdueLoans->count() > 0)
+                <span class="badge bg-danger-subtle text-danger px-3 py-2 fs-6" style="border-radius: 30px; display: flex; align-items: center; gap: 4px; animation: pulse 2s infinite;">
+                    <i class="bi bi-exclamation-triangle"></i> {{ $overdueLoans->count() }} Terlambat
+                </span>
+                @endif
+            </div>
         </div>
     </div>
 </div>
 
+<!-- Detailed Overdue Warning -->
+@if($overdueLoans->count() > 0)
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-danger border-start border-5 shadow-sm" style="border-radius: 12px; background: #fff5f5;">
+            <div class="card-header border-0 bg-transparent text-danger fw-bold d-flex align-items-center pt-3 pb-0">
+                <i class="bi bi-exclamation-octagon-fill fs-4 me-2"></i>
+                <h5 class="mb-0 fw-bold">⚠️ Peringatan Keterlambatan Pengembalian Barang</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small mb-3">Anda memiliki peminjaman aktif yang telah melewati batas waktu pengembalian. Mohon segera kembalikan barang-barang berikut ke pengelola laboratorium:</p>
+                <div class="row g-3">
+                    @foreach($overdueLoans as $loan)
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card bg-white border border-danger-subtle p-3 position-relative" style="border-radius: 10px; min-height: 140px;">
+                            <span class="badge bg-danger position-absolute top-0 end-0 m-2" style="font-size: 0.7rem;">Terlambat {{ $loan->getDaysOverdue() }} Hari</span>
+                            <h6 class="fw-bold text-dark mb-1" style="max-width: 65%;">{{ $loan->barang->name }}</h6>
+                            <div class="text-muted small mb-2">Kategori: {{ $loan->barang->kategori }}</div>
+                            <div class="text-secondary small">Tenggat: <strong class="text-danger">{{ $loan->due_date ? $loan->due_date->format('d M Y') : '-' }}</strong></div>
+                            <a href="{{ route('equipment.return') }}" class="btn btn-danger btn-sm w-100 mt-3 fw-semibold">
+                                <i class="bi bi-arrow-counterclockwise"></i> Kembalikan Sekarang
+                            </a>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 <!-- Dashboard Statistics Grid -->
-<div class="dashboard-grid">
-    <div class="stat-card available">
-        <div class="stat-value" id="available-count">-</div>
-        <div class="stat-label">Alat Tersedia</div>
+<div class="row g-4 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm position-relative overflow-hidden" style="border-radius: 16px; border-left: 4px solid var(--unimus-success) !important;">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="stat-value" id="available-count" style="color: var(--unimus-success);">-</div>
+                        <div class="stat-label">Alat Tersedia</div>
+                    </div>
+                    <div class="bg-success-subtle text-success rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                        <i class="bi bi-check-circle fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="stat-card borrowed">
-        <div class="stat-value" id="borrowed-count">-</div>
-        <div class="stat-label">Sedang Dipinjam</div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm position-relative overflow-hidden" style="border-radius: 16px; border-left: 4px solid var(--unimus-warning) !important;">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="stat-value" id="borrowed-count" style="color: var(--unimus-warning);">-</div>
+                        <div class="stat-label">Sedang Dipinjam</div>
+                    </div>
+                    <div class="bg-warning-subtle text-warning rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                        <i class="bi bi-arrow-right-left fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="stat-card damaged">
-        <div class="stat-value" id="damaged-count">-</div>
-        <div class="stat-label">Rusak/Perbaikan</div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm position-relative overflow-hidden" style="border-radius: 16px; border-left: 4px solid var(--unimus-danger) !important;">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="stat-value" id="damaged-count" style="color: var(--unimus-danger);">-</div>
+                        <div class="stat-label">Rusak/Perbaikan</div>
+                    </div>
+                    <div class="bg-danger-subtle text-danger rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                        <i class="bi bi-tools fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="stat-card">
-        <div class="stat-value" id="total-count">-</div>
-        <div class="stat-label">Total Alat</div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm position-relative overflow-hidden" style="border-radius: 16px; border-left: 4px solid var(--unimus-primary) !important;">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="stat-value" id="total-count" style="color: var(--unimus-primary);">-</div>
+                        <div class="stat-label">Total Alat</div>
+                    </div>
+                    <div class="bg-dark-subtle text-dark rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                        <i class="bi bi-box fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -132,7 +217,7 @@
     <div class="col-lg-4">
         <!-- Active Loans -->
         <div class="overview-section">
-            <h3 class="section-title">Peminjaman Aktif</h3>
+            <h3 class="section-title">Peminjaman Saya (Aktif)</h3>
             <div id="active-loans-container">
                 <div class="text-center">
                     <div class="loader" style="margin: 1rem auto;"></div>
@@ -152,7 +237,10 @@
         <div class="overview-section">
             <h3 class="section-title">Aksi Cepat</h3>
             <div class="d-grid gap-2">
-                <a href="{{ route('equipment.return') }}" class="btn btn-primary btn-sm">
+                <a href="{{ route('equipment.borrow') }}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus-circle"></i> Pinjam Alat Lab
+                </a>
+                <a href="{{ route('equipment.return') }}" class="btn btn-outline-primary btn-sm">
                     <i class="bi bi-arrow-counterclockwise"></i> Kembalikan Alat
                 </a>
                 <a href="{{ route('barang.tersedia') }}" class="btn btn-outline-primary btn-sm">
@@ -160,6 +248,38 @@
                 </a>
                 <a href="{{ route('schedule.index') }}" class="btn btn-outline-primary btn-sm">
                     <i class="bi bi-calendar"></i> Jadwal Lab
+                </a>
+            </div>
+        </div>
+
+        <!-- Laporan Kerusakan Saya -->
+        <div class="overview-section">
+            <h3 class="section-title">Laporan Kerusakan Saya</h3>
+            <div class="list-group list-group-flush mb-2">
+                @forelse($laporanKerusakanSaya as $laporan)
+                    <div class="list-group-item px-0 border-0 pb-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <span class="fw-bold text-dark" style="font-size: 0.9rem;">{{ $laporan->barang->name ?? 'Barang' }}</span>
+                            @if($laporan->status === 'pending')
+                                <span class="badge bg-warning text-dark" style="font-size:0.7rem;">Pending</span>
+                            @elseif($laporan->status === 'proses')
+                                <span class="badge bg-info text-white" style="font-size:0.7rem;">Proses</span>
+                            @else
+                                <span class="badge bg-success text-white" style="font-size:0.7rem;">Selesai</span>
+                            @endif
+                        </div>
+                        <p class="mb-1 text-muted small mt-1" style="line-height: 1.3;">{{ Str::limit($laporan->deskripsi, 60) }}</p>
+                        <small class="text-secondary" style="font-size: 0.75rem;">
+                            <i class="bi bi-clock"></i> {{ $laporan->created_at ? $laporan->created_at->diffForHumans() : '-' }}
+                        </small>
+                    </div>
+                @empty
+                    <p class="text-muted small mb-0">Belum ada laporan kerusakan.</p>
+                @endforelse
+            </div>
+            <div class="mt-2">
+                <a href="{{ route('laporan.kerusakan.index') }}" class="btn btn-sm btn-outline-danger w-100 fw-semibold" style="font-size: 0.8rem;">
+                    <i class="bi bi-exclamation-triangle"></i> Hubungi / Laporkan Kerusakan
                 </a>
             </div>
         </div>

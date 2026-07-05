@@ -81,6 +81,7 @@ Route::middleware('auth')->group(function () {
     // Admin room reports removed
 
     // Laporan Kerusakan
+    Route::get('/laporan-kerusakan', [LaporanKerusakanController::class, 'index'])->name('laporan.kerusakan.index');
     Route::post('/laporan-kerusakan', [LaporanKerusakanController::class, 'store'])->name('laporan.kerusakan.store');
     Route::post('/admin/laporan-kerusakan/{id}/status', [LaporanKerusakanController::class, 'updateStatus'])->name('admin.laporan.kerusakan.status');
 });

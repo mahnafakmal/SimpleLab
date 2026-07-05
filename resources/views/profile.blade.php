@@ -1,6 +1,6 @@
 @extends('layouts.app-enhanced')
 
-@section('title', 'Profil Mahasiswa - SimpleLab')
+@section('title', 'Profil Mahasiswa - SIMPLELAB')
 
 @section('content')
 <div class="container-fluid">
