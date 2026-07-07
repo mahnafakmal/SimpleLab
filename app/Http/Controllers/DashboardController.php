@@ -93,6 +93,7 @@ class DashboardController extends Controller
         
         $peminjamanSaya = Peminjaman::with('barang')
             ->where('user_id', $user->id)
+            ->whereIn('status', ['active', 'pending'])
             ->latest()
             ->take(5)
             ->get();

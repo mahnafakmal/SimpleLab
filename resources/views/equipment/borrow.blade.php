@@ -277,12 +277,12 @@
                     <strong>Status:</strong> 
                     <span style="color: #28a745; font-weight: 600;">✓ Tersedia</span>
                 </div>
-                <form action="{{ route('web.peminjaman.alat') }}" method="POST" style="margin: 0;">
+                <form action="{{ auth()->user()->role === 'dosen' ? route('web.peminjaman.alat.dosen') : route('web.peminjaman.alat') }}" method="POST" style="margin: 0;">
                     @csrf
                     <input type="hidden" name="barang_id" value="{{ $barang->id }}">
                     <div class="form-group" style="margin-bottom: 0.75rem;">
                         <label for="waktu_mulai_{{ $barang->id }}" style="display:block;font-size:0.85rem;margin-bottom:0.35rem;">Waktu Mulai</label>
-                        <input type="datetime-local" name="waktu_mulai" id="waktu_mulai_{{ $barang->id }}" class="form-control-custom" required min="{{ now()->format('Y-m-d\\TH:i') }}">
+                        <input type="datetime-local" name="waktu_mulai" id="waktu_mulai_{{ $barang->id }}" class="form-control-custom" required min="{{ now()->format('Y-m-d\\TH:i') }}" value="{{ now()->format('Y-m-d\\TH:i') }}">
                     </div>
                     <div class="form-group" style="margin-bottom: 0.75rem;">
                         <label for="waktu_selesai_{{ $barang->id }}" style="display:block;font-size:0.85rem;margin-bottom:0.35rem;">Waktu Selesai</label>

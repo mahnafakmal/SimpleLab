@@ -55,7 +55,14 @@
                         <td>{{ $loan->barang->name ?? '-' }}</td>
                         <td>{{ $displayStarted }}</td>
                         <td>
-                            <span class="badge badge-{{ $loan->status == 'active' ? 'info' : ($loan->status == 'returned' ? 'success' : 'danger') }}">
+                            @php
+                                $badgeClass = 'secondary';
+                                if ($loan->status == 'active') $badgeClass = 'info';
+                                elseif ($loan->status == 'pending') $badgeClass = 'warning';
+                                elseif ($loan->status == 'returned') $badgeClass = 'success';
+                                elseif ($loan->status == 'cancelled') $badgeClass = 'danger';
+                            @endphp
+                            <span class="badge badge-{{ $badgeClass }}">
                                 {{ ucfirst($loan->status) }}
                             </span>
                         </td>
@@ -63,6 +70,7 @@
                             <form action="{{ route('admin.loan.status', $loan->id) }}" method="POST" style="display:flex;gap:0.5rem;align-items:center;">
                                 @csrf
                                 <select name="status" class="form-control-custom" required>
+                                    <option value="pending" {{ $loan->status == 'pending' ? 'selected' : '' }}>Pending</option>
                                     <option value="active" {{ $loan->status == 'active' ? 'selected' : '' }}>Active</option>
                                     <option value="returned" {{ $loan->status == 'returned' ? 'selected' : '' }}>Returned</option>
                                     <option value="cancelled" {{ $loan->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>

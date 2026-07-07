@@ -38,10 +38,19 @@ class PeminjamanController extends Controller
     // Borrow equipment via Web form
     public function borrowAlat(Request $request)
     {
-        // Only Mahasiswa (role 'user') may borrow directly
-        if (! Auth::check() || Auth::user()?->role !== 'user') {
+        // Allow Mahasiswa directly. If Dosen hits this endpoint by mistake, delegate to the Dosen handler.
+        if (! Auth::check()) {
+            abort(403, 'Authenticated user required.');
+        }
+
+        if (Auth::user()?->role === 'dosen') {
+            return $this->borrowAlatDosen($request);
+        }
+
+        if (Auth::user()?->role !== 'user') {
             abort(403, 'Only Mahasiswa may borrow equipment via this form.');
         }
+
         $validated = $request->validate([
             'barang_id' => 'required|exists:barangs,id',
             'waktu_mulai' => ['required', 'date_format:Y-m-d\TH:i'],

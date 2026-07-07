@@ -637,7 +637,7 @@
                 </div>
                 <div class="form-group-custom">
                     <label for="waktu_mulai">Waktu Mulai</label>
-                    <input type="datetime-local" name="waktu_mulai" id="waktu_mulai" class="form-control-custom" required min="{{ now()->format('Y-m-d\\TH:i') }}">
+                    <input type="datetime-local" name="waktu_mulai" id="waktu_mulai" class="form-control-custom" required min="{{ now()->format('Y-m-d\\TH:i') }}" value="{{ now()->format('Y-m-d\\TH:i') }}">
                 </div>
                 <div class="form-group-custom">
                     <label for="waktu_selesai">Waktu Selesai</label>
@@ -730,8 +730,12 @@
                                 @csrf
                                 <button type="submit" class="btn-return-custom">Kembalikan</button>
                             </form>
-                        @else
+                        @elseif($pinjam->status === 'pending')
+                            <span class="badge-custom badge-warning-custom">Menunggu Persetujuan</span>
+                        @elseif($pinjam->status === 'returned')
                             <span class="badge-custom badge-success-custom">Selesai</span>
+                        @else
+                            <span class="badge-custom badge-secondary-custom">{{ ucfirst($pinjam->status) }}</span>
                         @endif
                     </div>
                 </div>

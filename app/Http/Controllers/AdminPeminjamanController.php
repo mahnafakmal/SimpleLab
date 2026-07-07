@@ -35,7 +35,7 @@ class AdminPeminjamanController extends Controller
         $loan = Peminjaman::findOrFail($id);
         $status = $request->input('status');
         // Accept only defined statuses
-        if (!in_array($status, ['active', 'returned', 'cancelled'])) {
+        if (!in_array($status, ['pending', 'active', 'returned', 'cancelled'])) {
             return Redirect::back()->with('error', 'Status tidak valid');
         }
         $loan->status = $status;
