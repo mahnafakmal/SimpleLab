@@ -30,16 +30,22 @@ class CheckOverdueEquipment extends Command
     {
         $this->info('Checking for overdue equipment...');
 
-        // Get all active loans that are overdue
+        // Get all active loans that are overdue and not yet notified
         $overdueLoans = Peminjaman::where('status', 'active')
             ->where('due_date', '<', now())
+            ->whereNull('overdue_notified_at')
             ->with(['user', 'barang'])
             ->get();
 
         $count = 0;
         foreach ($overdueLoans as $loan) {
-            // Send notification to user
-            $loan->user->notify(new EquipmentOverdueNotification($loan->barang, $loan));
+            // Send notification to user (only if notifications table exists)
+            if (\Illuminate\Support\Facades\Schema::hasTable('notifications')) {
+                $loan->user->notify(new EquipmentOverdueNotification($loan->barang, $loan));
+            }
+            // mark as notified to avoid duplicate alerts
+            $loan->overdue_notified_at = now();
+            $loan->save();
             $count++;
         }
 

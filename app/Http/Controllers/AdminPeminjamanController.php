@@ -40,6 +40,17 @@ class AdminPeminjamanController extends Controller
         }
         $loan->status = $status;
         $loan->save();
+        // Notify borrower about status change (if notifications table exists)
+        if (\Illuminate\Support\Facades\Schema::hasTable('notifications') && $loan->user) {
+            $action = 'borrowed';
+            if ($status === 'returned') $action = 'returned';
+            if ($status === 'cancelled') $action = 'cancelled';
+            try {
+                $loan->user->notify(new \App\Notifications\EquipmentActivityNotification($loan->barang, $loan, $action));
+            } catch (\Throwable $e) {
+                // Ignore notification failures to avoid blocking admin flow
+            }
+        }
         return Redirect::back()->with('success', 'Status peminjaman berhasil diperbarui');
     }
 

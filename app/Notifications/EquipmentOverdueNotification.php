@@ -2,17 +2,13 @@
 
 namespace App\Notifications;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use App\Models\Barang;
 use App\Models\Peminjaman;
 
-class EquipmentOverdueNotification extends Notification implements ShouldQueue
+class EquipmentOverdueNotification extends Notification
 {
-    use Queueable;
-
     protected $barang;
     protected $loan;
     protected $daysOverdue;
@@ -63,11 +59,21 @@ class EquipmentOverdueNotification extends Notification implements ShouldQueue
             'type' => 'equipment_overdue',
             'barang_id' => $this->barang->id,
             'barang_name' => $this->barang->name,
+            'barang_image' => $this->getImageUrl(),
             'loan_id' => $this->loan->id,
             'due_date' => $this->loan->due_date->toIso8601String(),
             'days_overdue' => $this->daysOverdue,
             'message' => "Barang {$this->barang->name} terlambat {$this->daysOverdue} hari",
             'severity' => $this->daysOverdue > 7 ? 'critical' : 'warning',
         ];
+    }
+
+    protected function getImageUrl(): string
+    {
+        $filename = $this->barang->image ?? null;
+        if ($filename && file_exists(public_path('images/barangs/' . $filename))) {
+            return asset('images/barangs/' . $filename);
+        }
+        return asset('images/barangs/logo-unimus.png');
     }
 }

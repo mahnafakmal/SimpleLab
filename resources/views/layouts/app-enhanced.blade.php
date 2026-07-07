@@ -373,68 +373,122 @@
                         @auth
                         <!-- Notification Dropdown -->
                         @php
-                            $navbarOverdueLoans = Auth::user()->getOverdueLoans();
-                            $navbarOverdueCount = $navbarOverdueLoans->count();
+                            // Guard: if the notifications table doesn't exist yet, avoid querying it
+                            if (\Illuminate\Support\Facades\Schema::hasTable('notifications')) {
+                                $navbarNotifications = Auth::user()->unreadNotifications()->take(10)->get();
+                                $navbarNotifCount = Auth::user()->unreadNotifications()->count();
+                            } else {
+                                $navbarNotifications = collect();
+                                $navbarNotifCount = 0;
+                            }
+
+                            // Also fetch recent LogAkses (Riwayat Aktivitas Akun & RFID) for the current user
+                            if (\Illuminate\Support\Facades\Schema::hasTable('log_akses')) {
+                                $navbarLogAkses = \App\Models\LogAkses::where('user_id', Auth::id())->orderBy('created_at', 'desc')->take(5)->get();
+                            } else {
+                                $navbarLogAkses = collect();
+                            }
                         @endphp
                         <div class="dropdown me-2">
                             <button class="btn btn-outline-light btn-sm position-relative dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 20px; padding: 0.4rem 1rem;">
                                 <i class="bi bi-bell"></i>
                                 <span class="d-none d-md-inline">Notifikasi</span>
-                                @if($navbarOverdueCount > 0)
+                                @if($navbarNotifCount > 0)
                                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.7rem; padding: 0.25em 0.6em;">
-                                        {{ $navbarOverdueCount }}
+                                        {{ $navbarNotifCount }}
                                     </span>
                                 @endif
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 py-0" style="min-width: 320px; max-height: 400px; overflow-y: auto; border-radius: 12px; margin-top: 10px;">
                                 <div class="p-3 border-bottom bg-light d-flex justify-content-between align-items-center" style="border-radius: 12px 12px 0 0;">
                                     <span class="fw-bold text-dark"><i class="bi bi-bell-fill text-warning me-1"></i> Notifikasi</span>
-                                    @if($navbarOverdueCount > 0)
-                                        <span class="badge bg-danger-subtle text-danger">{{ $navbarOverdueCount }} Terlambat</span>
+                                    @if($navbarNotifCount > 0)
+                                        <span class="badge bg-danger-subtle text-danger">{{ $navbarNotifCount }} baru</span>
                                     @endif
                                 </div>
-                                @forelse($navbarOverdueLoans as $loan)
+                                @forelse($navbarNotifications as $n)
                                     <li class="border-bottom">
                                         <div class="dropdown-item py-3 px-3" style="white-space: normal;">
-                                            <div class="d-flex justify-content-between align-items-start mb-1">
-                                                <h6 class="mb-0 fw-bold text-danger" style="font-size: 0.9rem;">{{ $loan->barang->name }}</h6>
-                                                <span class="badge bg-danger" style="font-size: 0.7rem;">Terlambat</span>
-                                            </div>
-                                            <p class="mb-1 text-muted small" style="line-height: 1.3;">Batas waktu pengembalian telah terlewati.</p>
-                                            <div class="d-flex justify-content-between align-items-center mt-2">
-                                                <span class="small text-muted">Tenggat: <strong>{{ $loan->due_date ? $loan->due_date->format('d/m/Y') : '-' }}</strong></span>
-                                                <span class="small fw-bold text-danger">({{ $loan->getDaysOverdue() }} hari)</span>
-                                            </div>
-                                            <a href="{{ route('equipment.return') }}" class="btn btn-danger btn-sm w-100 mt-2 text-white fw-semibold" style="font-size: 0.8rem; border-radius: 6px;">
-                                                <i class="bi bi-arrow-counterclockwise"></i> Kembalikan Sekarang
-                                            </a>
+                                            @php $data = $n->data; @endphp
+                                            @if(isset($data['type']) && $data['type'] === 'equipment_overdue')
+                                                @php $img = $data['barang_image'] ?? asset('images/barangs/logo-unimus.png'); @endphp
+                                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <img src="{{ $img }}" alt="thumb" style="width:48px;height:48px;object-fit:cover;border-radius:6px;" onerror="this.onerror=null;this.src='{{ asset('images/barangs/logo-unimus.png') }}'">
+                                                        <h6 class="mb-0 fw-bold text-danger" style="font-size: 0.9rem;">{{ $data['barang_name'] ?? 'Barang' }}</h6>
+                                                    </div>
+                                                    <span class="badge bg-danger" style="font-size: 0.7rem;">Terlambat</span>
+                                                </div>
+                                                <p class="mb-1 text-muted small" style="line-height: 1.3;">Batas waktu pengembalian telah terlewati.</p>
+                                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                                    <span class="small text-muted">Tenggat: <strong>{{ isset($data['due_date']) ? (new \Carbon\Carbon($data['due_date']))->format('d/m/Y') : '-' }}</strong></span>
+                                                    <span class="small fw-bold text-danger">({{ $data['days_overdue'] ?? '0' }} hari)</span>
+                                                </div>
+                                                <a href="{{ route('equipment.return') }}" class="btn btn-danger btn-sm w-100 mt-2 text-white fw-semibold" style="font-size: 0.8rem; border-radius: 6px;">
+                                                    <i class="bi bi-arrow-counterclockwise"></i> Kembalikan Sekarang
+                                                </a>
+                                            @elseif(isset($data['type']) && $data['type'] === 'equipment_activity')
+                                                @php $img = $data['barang_image'] ?? asset('images/barangs/logo-unimus.png'); @endphp
+                                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <img src="{{ $img }}" alt="thumb" style="width:48px;height:48px;object-fit:cover;border-radius:6px;" onerror="this.onerror=null;this.src='{{ asset('images/barangs/logo-unimus.png') }}'">
+                                                        <h6 class="mb-0 fw-bold" style="font-size: 0.9rem;">{{ $data['barang_name'] ?? 'Barang' }}</h6>
+                                                    </div>
+                                                    @if($data['action'] === 'borrowed' || $data['action'] === 'requested')
+                                                        <span class="badge bg-primary" style="font-size: 0.7rem;">Dipinjam</span>
+                                                    @else
+                                                        <span class="badge bg-success" style="font-size: 0.7rem;">Dikembalikan</span>
+                                                    @endif
+                                                </div>
+                                                <p class="mb-1 text-muted small" style="line-height: 1.3;">{{ $data['message'] ?? '' }}</p>
+                                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                                    <a href="{{ route('equipment.return') }}" class="btn btn-outline-secondary btn-sm" style="font-size:0.8rem;">Lihat</a>
+                                                    <small class="text-muted">{{ $n->created_at->diffForHumans() }}</small>
+                                                </div>
+                                            @else
+                                                <p class="mb-0 small">{{ $n->data['message'] ?? 'Notifikasi baru' }}</p>
+                                            @endif
                                         </div>
                                     </li>
                                 @empty
-                                    <div class="text-center py-4 px-3 text-muted">
-                                        <i class="bi bi-bell-slash fs-4 d-block mb-2 text-secondary"></i>
-                                        <p class="mb-0 small">Tidak ada notifikasi keterlambatan</p>
-                                    </div>
+                                    {{-- no unread notifications; will show log akses items below if any --}}
                                 @endforelse
+
+                                @if($navbarLogAkses->isNotEmpty())
+                                    <div class="p-2 border-top bg-white small text-muted">Riwayat Aktivitas Akun &amp; RFID</div>
+                                    @foreach($navbarLogAkses as $log)
+                                        <li class="border-bottom">
+                                            <div class="dropdown-item py-3 px-3" style="white-space: normal;">
+                                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <i class="bi bi-card-text fs-4 text-secondary"></i>
+                                                        <h6 class="mb-0 fw-bold" style="font-size: 0.9rem;">{{ $log->action }}</h6>
+                                                    </div>
+                                                    <small class="text-muted">{{ $log->created_at->diffForHumans() }}</small>
+                                                </div>
+                                                <p class="mb-0 text-muted small">{{ $log->notes ?? '-' }}</p>
+                                            </div>
+                                        </li>
+                                    @endforeach
+                                @endif
                             </ul>
                         </div>
 
                         <!-- User Menu Dropdown -->
                         <div class="dropdown">
-                            <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" style="border-radius: 20px; padding: 0.4rem 1rem;">
-                                <i class="bi bi-person-circle"></i>
-                                {{ Auth::user()->name }}
-                            </button>
-<<<<<<< HEAD
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                @if(Auth::user()->role !== 'admin')
-                                <li><a class="dropdown-item" href="{{ route('profile') }}"><i class="bi bi-person-badge"></i> Profil Saya</a></li>
-=======
-                            <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 8px;">
-                                <li><a class="dropdown-item" href="{{ route('profile') }}"><i class="bi bi-person"></i> Profil</a></li>
->>>>>>> 648acad9ca4b13fb7e1a5398b085ad24c030c775
-                                <li><hr class="dropdown-divider"></li>
+                            <div class="dropdown" style="position: relative;">
+                                <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" style="border-radius: 20px; padding: 0.4rem 1rem;">
+                                    <i class="bi bi-person-circle"></i>
+                                    {{ Auth::user()->name }}
+                                </button>
+                                @if(isset($navbarNotifCount) && $navbarNotifCount > 0)
+                                    <span style="position: absolute; top: 0; right: 0; transform: translate(35%, -35%);">
+                                        <span style="background:#7c3aed; color:#fff; border-radius:50%; display:inline-block; min-width:20px; height:20px; padding:0 6px; font-size:0.7rem; line-height:20px; text-align:center; font-weight:600; box-shadow:0 2px 4px rgba(0,0,0,0.15); border:2px solid rgba(255,255,255,0.9);">{{ $navbarNotifCount > 99 ? '99+' : $navbarNotifCount }}</span>
+                                    </span>
                                 @endif
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 8px;">
+                                    <li><a class="dropdown-item" href="{{ route('profile') }}"><i class="bi bi-person"></i> Profil</a></li>
+                                    <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form action="{{ route('logout') }}" method="POST" style="display:inline;">
                                         @csrf
@@ -552,5 +606,29 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     @yield('js')
+    <script>
+        // When notifications dropdown is opened, mark all as read via AJAX then reload
+        (function(){
+            document.addEventListener('DOMContentLoaded', function(){
+                var notifBtn = document.querySelector('.dropdown.me-2 button[data-bs-toggle="dropdown"]');
+                if (!notifBtn) return;
+                notifBtn.addEventListener('shown.bs.dropdown', function(){
+                    fetch("{{ route('notifications.markRead') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({})
+                    }).then(function(){
+                        // reload to update unread badge and list
+                        location.reload();
+                    }).catch(function(){
+                        // ignore errors
+                    });
+                });
+            });
+        })();
+    </script>
 </body>
 </html>

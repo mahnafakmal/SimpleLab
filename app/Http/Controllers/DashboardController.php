@@ -10,8 +10,10 @@ use App\Models\TagRfid;
 use App\Models\User;
 use App\Models\LaporanKerusakan;
 use App\Models\RiwayatLog;
+use App\Notifications\EquipmentOverdueNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class DashboardController extends Controller
 {
@@ -108,6 +110,17 @@ class DashboardController extends Controller
             ->latest()
             ->take(5)
             ->get();
+
+        // Send overdue notifications for current user's overdue loans if not already sent.
+        if (Schema::hasTable('notifications')) {
+            foreach ($overdueLoans as $loan) {
+                if (is_null($loan->overdue_notified_at)) {
+                    $loan->user->notify(new EquipmentOverdueNotification($loan->barang, $loan));
+                    $loan->overdue_notified_at = now();
+                    $loan->save();
+                }
+            }
+        }
 
         return view('home', compact(
             'barangs',

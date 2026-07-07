@@ -90,7 +90,9 @@ class EquipmentReturnController extends Controller
         $barang->update(['status' => 'available']);
 
         // Send return notification
-        $user->notify(new EquipmentReturnedNotification($barang, $loan));
+        if (\Illuminate\Support\Facades\Schema::hasTable('notifications')) {
+            $user->notify(new EquipmentReturnedNotification($barang, $loan));
+        }
 
         return response()->json([
             'success' => true,

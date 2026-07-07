@@ -9,6 +9,7 @@ use App\Models\JadwalLab;
 use App\Models\TagRfid;
 use App\Models\LogAkses;
 use App\Models\RiwayatLog;
+use App\Notifications\EquipmentActivityNotification;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -48,8 +49,9 @@ class PeminjamanController extends Controller
         ]);
 
         $barang = Barang::findOrFail($request->barang_id);
-        $waktuMulai = Carbon::parse($request->waktu_mulai);
-        $waktuSelesai = Carbon::parse($request->waktu_selesai);
+        $appTimezone = config('app.timezone');
+        $waktuMulai = Carbon::parse($request->waktu_mulai, $appTimezone);
+        $waktuSelesai = Carbon::parse($request->waktu_selesai, $appTimezone);
 
         if ($barang->status !== 'available') {
             return back()->with('error', 'Alat lab ini sedang tidak tersedia atau sudah dipinjam.');
@@ -89,6 +91,11 @@ class PeminjamanController extends Controller
             'detail' => sprintf('User %s meminjam barang %s.', Auth::user()?->name, $barang->name),
         ]);
 
+        // Notify user about successful borrow (only if notifications table exists)
+        if (\Illuminate\Support\Facades\Schema::hasTable('notifications')) {
+            Auth::user()->notify(new EquipmentActivityNotification($barang, $peminjaman, 'borrowed'));
+        }
+
         return back()->with('success', sprintf('Berhasil meminjam alat %s untuk periode %s sampai %s.', $barang->name, $waktuMulai->isoFormat('D MMM YYYY, HH:mm'), $waktuSelesai->isoFormat('D MMM YYYY, HH:mm')));
     }
 
@@ -107,18 +114,28 @@ class PeminjamanController extends Controller
         ]);
 
         $barang = Barang::findOrFail($request->barang_id);
-        $waktuMulai = Carbon::parse($request->waktu_mulai);
-        $waktuSelesai = Carbon::parse($request->waktu_selesai);
+        $appTimezone = config('app.timezone');
+        $waktuMulai = Carbon::parse($request->waktu_mulai, $appTimezone);
+        $waktuSelesai = Carbon::parse($request->waktu_selesai, $appTimezone);
 
         if ($barang->status !== 'available') {
             return back()->with('error', 'Alat sedang tidak tersedia.');
+        }
+
+        // Ensure a Tag RFID exists for this item to satisfy DB constraints
+        $tag = TagRfid::where('barang_id', $barang->id)->first();
+        if (! $tag) {
+            $tag = TagRfid::create([
+                'uid' => 'WEB-' . strtoupper(uniqid()),
+                'barang_id' => $barang->id,
+            ]);
         }
 
         // Create a pending peminjaman; do not set barang status yet
         $peminjaman = Peminjaman::create([
             'user_id' => Auth::id(),
             'barang_id' => $barang->id,
-            'tag_rfid_id' => null,
+            'tag_rfid_id' => $tag->id,
             'started_at' => $waktuMulai,
             'due_date' => $waktuSelesai,
             'status' => 'pending',
@@ -128,6 +145,11 @@ class PeminjamanController extends Controller
             'event' => 'Request Peminjaman Dosen',
             'detail' => sprintf('Dosen %s meminta peminjaman barang %s.', Auth::user()?->name, $barang->name),
         ]);
+
+        // Notify dosen about request submission (only if notifications table exists)
+        if (\Illuminate\Support\Facades\Schema::hasTable('notifications')) {
+            Auth::user()->notify(new EquipmentActivityNotification($barang, $peminjaman, 'requested'));
+        }
 
         return back()->with('success', 'Permintaan peminjaman telah dikirim. Tunggu persetujuan admin.');
     }
@@ -161,6 +183,11 @@ class PeminjamanController extends Controller
             'event' => 'Pengembalian Web',
             'detail' => sprintf('User %s mengembalikan barang %s.', Auth::user()?->name, $barang->name),
         ]);
+
+        // Notify user about return (only if notifications table exists)
+        if (\Illuminate\Support\Facades\Schema::hasTable('notifications')) {
+            Auth::user()->notify(new EquipmentActivityNotification($barang, $peminjaman, 'returned'));
+        }
 
         return back()->with('success', sprintf('Alat lab %s telah berhasil dikembalikan.', $barang->name));
     }

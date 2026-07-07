@@ -100,6 +100,15 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('dashboard');
     })->name('rfid.store-equipment');
 
+    // Mark unread notifications as read (AJAX)
+    Route::post('/notifications/mark-read', function (\Illuminate\Http\Request $request) {
+        $user = Auth::user();
+        if ($user) {
+            $user->unreadNotifications->markAsRead();
+        }
+        return response()->json(['ok' => true]);
+    })->name('notifications.markRead');
+
     // API JSON endpoints (digunakan oleh dashboard sections)
     Route::get('/api/admin/users', function () {
         return response()->json(

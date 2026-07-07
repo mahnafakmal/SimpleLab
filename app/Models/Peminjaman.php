@@ -21,6 +21,7 @@ class Peminjaman extends Model
         'returned_at',
         'status',
         'due_date',
+        'overdue_notified_at',
     ];
 
     protected $casts = [
@@ -28,6 +29,7 @@ class Peminjaman extends Model
         'ended_at' => 'datetime',
         'returned_at' => 'datetime',
         'due_date' => 'datetime',
+        'overdue_notified_at' => 'datetime',
     ];
 
     public function user()
