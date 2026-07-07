@@ -12,6 +12,7 @@ use App\Models\LaporanKerusakan;
 use App\Models\RiwayatLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use App\Exports\PeminjamanReportExport;
 use App\Exports\RegistrasiReportExport;
 
@@ -58,6 +59,16 @@ class DashboardController extends Controller
             // Fetch dynamic damage reports count and pending requests count
             $totalDamaged = Barang::where('kondisi', '!=', 'Baik')->count();
             $pendingLoans = Peminjaman::where('status', 'pending')->count();
+            $overdueLoans = collect();
+
+            if (Schema::hasColumn('peminjamans', 'due_date')) {
+                $overdueLoans = Peminjaman::where('status', 'active')
+                    ->whereNotNull('due_date')
+                    ->where('due_date', '<', now())
+                    ->with(['barang', 'user'])
+                    ->orderBy('due_date', 'asc')
+                    ->get();
+            }
             $allReports = LaporanKerusakan::with(['user', 'barang'])->orderBy('created_at', 'desc')->get();
             $registrationsCount = RiwayatLog::where('event', 'like', 'Registrasi%')->count();
 
@@ -78,6 +89,7 @@ class DashboardController extends Controller
                 'availableSummary',
                 'totalDamaged',
                 'pendingLoans',
+                'overdueLoans',
                 'registrationsCount',
                 'allReports'
             ));

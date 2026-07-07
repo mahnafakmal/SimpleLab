@@ -1,95 +1,209 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barang Tersedia - SimpleLab</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-        @vite('resources/css/home.css')
-    @else
-        <link rel="stylesheet" href="{{ asset('css/home.css') }}">
-    @endif
-</head>
-<body>
-    <nav class="top-nav">
-        <div class="logo-area">
-            <div class="logo-icon"><i data-lucide="flask-conical"></i></div>
-            <div class="logo-text"><h1>SimpleLab</h1><p>Lab IOT Computing</p></div>
-        </div>
-        <div class="user-area">
-            <span class="badge-user">{{ auth()->user()->role === 'dosen' ? 'Dosen' : 'Mahasiswa' }}</span>
-            <span class="user-email">{{ auth()->user()->email }}</span>
-            <form action="{{ route('logout') }}" method="POST" style="display:inline">@csrf<button type="submit" class="logout-btn">Logout</button></form>
-        </div>
-    </nav>
+@extends('layouts.app-enhanced')
 
-    <main class="main-container">
-        <div class="header-section">
-            <div class="title-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                <h2>Barang Tersedia</h2>
-                <a href="{{ route('dashboard') }}" class="back-btn" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.75rem; color: #1e293b; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);" onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='#cbd5e1'; this.style.transform='translateX(-3px)'" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#e2e8f0'; this.style.transform='none'">
-                    <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Kembali ke Home
-                </a>
-            </div>
-            <p class="subtitle">Menampilkan semua barang yang saat ini berstatus tersedia di laboratorium.</p>
-        </div>
+@section('title', 'Alat Tersedia - SimpleLab')
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <span class="label">Total Alat Lab</span>
-                <span class="value">{{ $totalAssets ?? 0 }}</span>
-            </div>
-            <div class="stat-card">
-                <span class="label">Jumlah Tersedia</span>
-                <span class="value" style="color:#22c55e">{{ $availableItems->count() ?? 0 }}</span>
-            </div>
-        </div>
+@section('css')
+<style>
+    .equipment-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
 
-        <div class="list-card">
-            <h3>Daftar Barang Tersedia</h3>
-            @if($availableItems->isEmpty())
-                <div class="empty-state"><i data-lucide="box" size="48"></i><p>Tidak ada barang tersedia.</p></div>
+    .equipment-card {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .equipment-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .equipment-image {
+        width: 100%;
+        height: 180px;
+        background: linear-gradient(135deg, #003366 0%, #004d99 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        overflow: hidden;
+    }
+
+    .equipment-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .equipment-info {
+        padding: 1.5rem;
+    }
+
+    .equipment-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #003366;
+        margin-bottom: 0.5rem;
+    }
+
+    .equipment-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 0.75rem;
+    }
+
+    .equipment-meta-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .equipment-meta-label {
+        font-weight: 600;
+        color: #333;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+    }
+
+    .status-badge {
+        display: inline-block;
+        background: #d4edda;
+        color: #155724;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-align: center;
+        width: 100%;
+        margin-top: 0.75rem;
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-box {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #003366;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    .no-equipment {
+        text-align: center;
+        padding: 3rem;
+        color: #999;
+        background: white;
+        border-radius: 8px;
+        margin-top: 1.5rem;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h2 {
+        color: #003366;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: #666;
+        margin: 0;
+    }
+
+    @media (max-width: 768px) {
+        .equipment-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+    }
+</style>
+@endsection
+
+@section('content')
+<div class="page-header">
+    <h2><i class="bi bi-box"></i> Alat Tersedia</h2>
+    <p>Menampilkan semua barang yang saat ini berstatus tersedia di laboratorium.</p>
+</div>
+
+<!-- Statistics -->
+<div class="stats-row">
+    <div class="stat-box">
+        <div class="stat-number">{{ $totalAssets ?? 0 }}</div>
+        <div class="stat-label">Total Alat Lab</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-number" style="color: #28a745;">{{ $availableItems->count() ?? 0 }}</div>
+        <div class="stat-label">Alat Tersedia</div>
+    </div>
+</div>
+
+<!-- Equipment List -->
+@if($availableItems->isEmpty())
+<div class="no-equipment">
+    <i class="bi bi-inbox" style="font-size: 3rem; color: #ddd; margin-bottom: 1rem; display: block;"></i>
+    <p>Tidak ada barang yang tersedia saat ini.</p>
+    <p style="font-size: 0.9rem; margin: 0;">Silakan cek lagi nanti atau hubungi admin laboratorium.</p>
+</div>
+@else
+<div class="equipment-grid">
+    @foreach($availableItems as $item)
+    <div class="equipment-card">
+        <div class="equipment-image">
+            @php
+                $imagePath = 'images/barangs/'.$item->image;
+                $imageExists = $item->image && file_exists(public_path($imagePath));
+            @endphp
+            @if($imageExists)
+                <img src="{{ asset($imagePath) }}" alt="{{ $item->name }}">
             @else
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th>Nama</th>
-                                <th>Kategori</th>
-                                <th>Kondisi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($availableItems as $item)
-                                <tr>
-                                    <td class="thumb-col">
-                                        @php
-                                            $c1 = public_path('images/barangs/'.$item->image);
-                                            $c2 = public_path('images/'.$item->image);
-                                        @endphp
-                                        @if($item->image && (file_exists($c1) || file_exists($c2)))
-                                            <img src="{{ file_exists($c1) ? asset('images/barangs/'.$item->image) : asset('images/'.$item->image) }}" alt="{{ $item->name }}" class="thumb">
-                                        @else
-                                            <div class="thumb-placeholder"><i data-lucide="camera"></i></div>
-                                        @endif
-                                    </td>
-                                    <td>{{ $item->name }}</td>
-                                    <td>{{ $item->kategori ?? '-' }}</td>
-                                    <td>{{ $item->kondisi ?? '-' }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                <i class="bi bi-box-seam" style="font-size: 3rem;"></i>
             @endif
         </div>
-    </main>
+        <div class="equipment-info">
+            <div class="equipment-name">{{ $item->name }}</div>
+            <div class="equipment-meta">
+                <div class="equipment-meta-item">
+                    <span class="equipment-meta-label">Kategori</span>
+                    <span>{{ $item->kategori ?? '-' }}</span>
+                </div>
+                <div class="equipment-meta-item">
+                    <span class="equipment-meta-label">Kondisi</span>
+                    <span>{{ $item->kondisi ?? 'Baik' }}</span>
+                </div>
+            </div>
+            <div class="status-badge">
+                <i class="bi bi-check-circle"></i> Tersedia
+            </div>
+        </div>
+    </div>
+    @endforeach
+</div>
+@endif
 
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script>lucide.createIcons();</script>
-</body>
-</html>
+@endsection
