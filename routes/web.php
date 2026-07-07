@@ -86,6 +86,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/laporan-kerusakan', [LaporanKerusakanController::class, 'store'])->name('laporan.kerusakan.store');
     Route::post('/admin/laporan-kerusakan/{id}/status', [LaporanKerusakanController::class, 'updateStatus'])->name('admin.laporan.kerusakan.status');
 
+    // Equipment Borrowing Routes (Web Interface)
+    Route::get('/equipment/borrow', [PeminjamanController::class, 'showBorrowForm'])->name('equipment.borrow');
+    Route::post('/equipment/borrow/process', [PeminjamanController::class, 'processBorrow'])->name('equipment.borrow.process');
+    
     // Equipment Return Routes (RFID Scanner)
     Route::get('/equipment/return', [EquipmentReturnController::class, 'showReturnForm'])->name('equipment.return');
     Route::post('/equipment/return/scan', [EquipmentReturnController::class, 'processScan'])->name('equipment.return.scan');
@@ -113,6 +117,19 @@ Route::middleware('auth')->group(function () {
             App\Models\User::select('id','name','email','role')->orderBy('name')->get()
         );
     })->name('api.admin.users');
+
+    // Lightweight JSON endpoint: list registered RFID tags for admin dashboard modal
+    Route::get('/api/admin/rfid-tags', function () {
+        $tags = App\Models\TagRfid::with('barang:id,name,status')->orderBy('id','desc')->get()->map(function($t){
+            return [
+                'id' => $t->id,
+                'uid' => $t->uid,
+                'barang' => $t->barang->name ?? null,
+                'status' => $t->barang->status ?? 'unknown'
+            ];
+        });
+        return response()->json($tags);
+    })->name('api.admin.rfid.tags');
     Route::get('/api/statistics/top-items', [StatisticsController::class, 'getTopBorrowedItems'])->name('statistics.top-items');
     Route::get('/api/statistics/condition', [StatisticsController::class, 'getConditionReport'])->name('statistics.condition');
     Route::get('/api/statistics/dashboard', [StatisticsController::class, 'getDashboardStats'])->name('statistics.dashboard');
