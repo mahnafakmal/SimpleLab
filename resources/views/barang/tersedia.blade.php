@@ -176,11 +176,33 @@
     <div class="equipment-card">
         <div class="equipment-image">
             @php
-                $imagePath = 'images/barangs/'.$item->image;
-                $imageExists = $item->image && file_exists(public_path($imagePath));
+                $imageUrl = null;
+                if (!empty($item->image)) {
+                    // If image is a full URL
+                    if (preg_match('/^https?:\/\//', $item->image)) {
+                        $imageUrl = $item->image;
+                    }
+
+                    // Public path provided directly (e.g. "images/barangs/...")
+                    if (!$imageUrl && file_exists(public_path($item->image))) {
+                        $imageUrl = asset($item->image);
+                    }
+
+                    // Common images folder: public/images/barangs/{filename}
+                    $candidate = 'images/barangs/' . $item->image;
+                    if (!$imageUrl && file_exists(public_path($candidate))) {
+                        $imageUrl = asset($candidate);
+                    }
+
+                    // Storage (storage/app/public/{image})
+                    if (!$imageUrl && file_exists(storage_path('app/public/' . $item->image))) {
+                        $imageUrl = asset('storage/' . $item->image);
+                    }
+                }
             @endphp
-            @if($imageExists)
-                <img src="{{ asset($imagePath) }}" alt="{{ $item->name }}">
+
+            @if($imageUrl)
+                <img src="{{ $imageUrl }}" alt="{{ $item->name }}">
             @else
                 <i class="bi bi-box-seam" style="font-size: 3rem;"></i>
             @endif

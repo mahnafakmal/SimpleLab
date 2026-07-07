@@ -25,7 +25,7 @@ class BorrowHistoryController extends Controller
             ->get();
 
         $completedLoans = Peminjaman::where('user_id', $user->id)
-            ->where('status', 'completed')
+            ->where('status', 'returned')
             ->with('barang')
             ->orderBy('returned_at', 'desc')
             ->paginate(10);

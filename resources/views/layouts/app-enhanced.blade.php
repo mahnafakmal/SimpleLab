@@ -537,6 +537,13 @@
                         </a>
                     </li>
                     @endif
+                    @if(Auth::user()->role === 'dosen')
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('jadwal.laboratorium') ? 'active' : '' }}" href="{{ route('jadwal.laboratorium') }}">
+                            <i class="bi bi-calendar-week"></i> Jadwal Lab
+                        </a>
+                    </li>
+                    @endif
                     @if(Auth::user()->role === 'admin')
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('history.*') ? 'active' : '' }}" href="{{ route('history.index') }}">

@@ -227,6 +227,32 @@ class DashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('auth.profile', compact('user', 'peminjaman', 'logAkses'));
+        $activeLoans = Peminjaman::with('barang')
+            ->where('user_id', $user->id)
+            ->where('status', 'active')
+            ->get();
+
+        $peminjamanSaya = Peminjaman::with('barang')
+            ->where('user_id', $user->id)
+            ->latest()
+            ->take(10)
+            ->get();
+
+        return view('profile', compact('user', 'peminjaman', 'logAkses', 'activeLoans', 'peminjamanSaya'));
+    }
+
+    /**
+     * Show lab schedule to Dosen (read-only).
+     */
+    public function jadwalForDosen()
+    {
+        $user = Auth::user();
+        if (! $user || $user->role !== 'dosen') {
+            abort(403, 'Hanya Dosen yang dapat melihat jadwal lab di halaman ini.');
+        }
+
+        $schedules = \App\Models\JadwalLab::orderBy('hari')->orderBy('jam_mulai')->get();
+
+        return view('jadwal.dosen', compact('user', 'schedules'));
     }
 }

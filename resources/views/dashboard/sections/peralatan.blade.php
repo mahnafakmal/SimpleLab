@@ -53,7 +53,7 @@
                             <tr>
                                 <td>
                                     @if(isset($tag->barang) && $tag->barang->image)
-                                        <img src="/{{ $tag->barang->image }}" alt="{{ $tag->barang->name }}" style="width:56px;height:40px;object-fit:cover;border-radius:6px;">
+                                        <img src="{{ asset($tag->barang->image) }}" alt="{{ $tag->barang->name }}" style="width:56px;height:40px;object-fit:cover;border-radius:6px;">
                                     @else
                                         <div style="width:56px;height:40px;background:#f3f4f6;border-radius:6px;display:inline-block;"></div>
                                     @endif
@@ -93,7 +93,7 @@
                             <tr>
                                 <td>
                                     @if($item->image)
-                                        <img src="/{{ $item->image }}" alt="{{ $item->name }}" style="width:56px;height:40px;object-fit:cover;border-radius:6px;">
+                                        <img src="{{ asset($item->image) }}" alt="{{ $item->name }}" style="width:56px;height:40px;object-fit:cover;border-radius:6px;">
                                     @else
                                         <div style="width:56px;height:40px;background:#f3f4f6;border-radius:6px;display:inline-block;"></div>
                                     @endif

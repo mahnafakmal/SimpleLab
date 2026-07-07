@@ -4,6 +4,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RfidController;
 use App\Http\Controllers\PeminjamanController;
+use App\Http\Controllers\EquipmentReturnController;
+use App\Http\Controllers\BorrowHistoryController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminPeminjamanController;
 use App\Http\Controllers\LaporanKerusakanController;
@@ -51,11 +53,19 @@ Route::middleware('auth')->group(function () {
 
     // Web Peminjaman & Booking endpoints
     Route::get('/equipment/borrow', [PeminjamanController::class, 'showBorrowForm'])->name('equipment.borrow');
-    Route::get('/equipment/return', [PeminjamanController::class, 'showReturnForm'])->name('equipment.return');
+    Route::get('/equipment/return', [EquipmentReturnController::class, 'showReturnForm'])->name('equipment.return');
+    Route::get('/equipment/active-loans', [EquipmentReturnController::class, 'getActiveLoans'])->name('equipment.active-loans');
+    Route::post('/equipment/return/scan', [EquipmentReturnController::class, 'processScan'])->name('equipment.return.scan');
     Route::post('/web/peminjaman/alat', [PeminjamanController::class, 'borrowAlat'])->name('web.peminjaman.alat');
     Route::post('/web/peminjaman/alat/dosen', [PeminjamanController::class, 'borrowAlatDosen'])->name('web.peminjaman.alat.dosen');
     Route::post('/web/pengembalian/alat/{id}', [PeminjamanController::class, 'returnAlat'])->name('web.pengembalian.alat');
     // Room booking routes removed (feature disabled)
+
+    // Borrow history routes
+    Route::get('/history', [BorrowHistoryController::class, 'index'])->name('history.index');
+    Route::get('/history/overdue', [BorrowHistoryController::class, 'overdue'])->name('history.overdue');
+    Route::get('/history/export-pdf', [BorrowHistoryController::class, 'exportPdf'])->name('history.export-pdf');
+    Route::get('/history/{peminjaman}', [BorrowHistoryController::class, 'show'])->name('history.show');
 
     // Admin loan and room status routes
     Route::post('/admin/loan/status/{id}', [AdminPeminjamanController::class, 'updateLoanStatus'])->name('admin.loan.status');
@@ -66,6 +76,8 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
+    // Dosen-only: lihat jadwal lab (read-only, tidak bisa reservasi)
+    Route::get('/jadwal-lab', [DashboardController::class, 'jadwalForDosen'])->name('jadwal.laboratorium');
     // List available items for users/admin
     Route::get('/barang/tersedia', [DashboardController::class, 'availableItems'])->name('barang.tersedia');
     Route::get('/barang/semua', [DashboardController::class, 'allItems'])->name('barang.semua');

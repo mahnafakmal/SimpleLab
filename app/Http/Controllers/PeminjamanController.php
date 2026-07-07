@@ -42,16 +42,32 @@ class PeminjamanController extends Controller
         if (! Auth::check() || Auth::user()?->role !== 'user') {
             abort(403, 'Only Mahasiswa may borrow equipment via this form.');
         }
-        $request->validate([
+        $validated = $request->validate([
             'barang_id' => 'required|exists:barangs,id',
-            'waktu_mulai' => ['required', 'date_format:Y-m-d\TH:i', 'after_or_equal:now'],
+            'waktu_mulai' => ['required', 'date_format:Y-m-d\TH:i'],
             'waktu_selesai' => ['required', 'date_format:Y-m-d\TH:i', 'after:waktu_mulai'],
+        ], [
+            'waktu_selesai.after' => 'Waktu selesai harus setelah waktu mulai.',
+            'waktu_mulai.required' => 'Waktu mulai harus diisi.',
+            'waktu_selesai.required' => 'Waktu selesai harus diisi.',
         ]);
 
         $barang = Barang::findOrFail($request->barang_id);
         $appTimezone = config('app.timezone');
         $waktuMulai = Carbon::parse($request->waktu_mulai, $appTimezone);
         $waktuSelesai = Carbon::parse($request->waktu_selesai, $appTimezone);
+
+        // Pastikan waktu mulai tidak sebelum sekarang (sesuaikan timezone dan buang detik)
+        $now = Carbon::now($appTimezone)->startOfMinute();
+        if ($waktuMulai->lt($now)) {
+            return back()->withErrors(['waktu_mulai' => 'Waktu mulai harus sama atau setelah sekarang.'])->withInput();
+        }
+
+        // Pastikan durasi antara 1 sampai 3 hari (24 - 72 jam)
+        $durationHours = $waktuMulai->diffInHours($waktuSelesai);
+        if ($durationHours < 24 || $durationHours > 72) {
+            return back()->withErrors(['waktu_selesai' => 'Durasi peminjaman harus antara 1 sampai 3 hari.'])->withInput();
+        }
 
         if ($barang->status !== 'available') {
             return back()->with('error', 'Alat lab ini sedang tidak tersedia atau sudah dipinjam.');
@@ -106,17 +122,33 @@ class PeminjamanController extends Controller
             abort(403, 'Only Dosen may request borrowing via this form.');
         }
 
-        $request->validate([
+        $validated = $request->validate([
             'barang_id' => 'required|exists:barangs,id',
-            'waktu_mulai' => ['required', 'date_format:Y-m-d\TH:i', 'after_or_equal:now'],
+            'waktu_mulai' => ['required', 'date_format:Y-m-d\TH:i'],
             'waktu_selesai' => ['required', 'date_format:Y-m-d\TH:i', 'after:waktu_mulai'],
             'notes' => 'nullable|string|max:500'
+        ], [
+            'waktu_selesai.after' => 'Waktu selesai harus setelah waktu mulai.',
+            'waktu_mulai.required' => 'Waktu mulai harus diisi.',
+            'waktu_selesai.required' => 'Waktu selesai harus diisi.',
         ]);
 
         $barang = Barang::findOrFail($request->barang_id);
         $appTimezone = config('app.timezone');
         $waktuMulai = Carbon::parse($request->waktu_mulai, $appTimezone);
         $waktuSelesai = Carbon::parse($request->waktu_selesai, $appTimezone);
+
+        // Pastikan waktu mulai tidak sebelum sekarang (sesuaikan timezone dan buang detik)
+        $now = Carbon::now($appTimezone)->startOfMinute();
+        if ($waktuMulai->lt($now)) {
+            return back()->withErrors(['waktu_mulai' => 'Waktu mulai harus sama atau setelah sekarang.'])->withInput();
+        }
+
+        // Pastikan durasi antara 1 sampai 3 hari (24 - 72 jam)
+        $durationHours = $waktuMulai->diffInHours($waktuSelesai);
+        if ($durationHours < 24 || $durationHours > 72) {
+            return back()->withErrors(['waktu_selesai' => 'Durasi peminjaman harus antara 1 sampai 3 hari.'])->withInput();
+        }
 
         if ($barang->status !== 'available') {
             return back()->with('error', 'Alat sedang tidak tersedia.');
