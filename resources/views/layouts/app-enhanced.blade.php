@@ -3,31 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'SimpleLab - Laboratory Equipment Management')</title>
+    <title>@yield('title', 'SIMPLELAB - Laboratory Equipment Management')</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.css" rel="stylesheet">
     <style>
         :root {
-            --unimus-primary: #003366;
+            --unimus-primary: #1e40af;
             --unimus-secondary: #ff6b35;
-            --unimus-accent: #004d99;
+            --unimus-accent: #2563eb;
+            --unimus-light: #f8fafc;
+            --unimus-success: #10b981;
+            --unimus-danger: #ef4444;
+            --unimus-warning: #f59e0b;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
         }
 
         /* Header with UNIMUS Logo */
         header {
-            background: linear-gradient(135deg, var(--unimus-primary) 0%, var(--unimus-accent) 100%);
+            background: rgba(30, 64, 175, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             color: white;
-            padding: 1rem 0;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 0.6rem 0;
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000;
         }
 
         .navbar-brand {
@@ -39,91 +49,109 @@
         }
 
         .navbar-brand img {
-            height: 50px;
+            height: 48px;
             width: auto;
         }
 
         .navbar-brand span {
             display: flex;
             flex-direction: column;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            color: #fff;
         }
 
         .navbar-brand span small {
             font-size: 0.75rem;
-            opacity: 0.9;
+            opacity: 0.8;
+            font-weight: 400;
         }
 
         /* Sidebar */
         .sidebar {
-            background-color: #fff;
-            min-height: calc(100vh - 80px);
-            border-right: 1px solid #e0e0e0;
-            padding: 2rem 0;
+            background-color: #0f2347;
+            color: #94a3b8;
+            min-height: calc(100vh - 70px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1.5rem 0;
         }
 
         .sidebar .nav-link {
-            color: var(--unimus-primary);
-            padding: 0.75rem 1.5rem;
-            border-left: 3px solid transparent;
-            transition: all 0.3s ease;
+            color: #94a3b8;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            margin: 0.2rem 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
 
-        .sidebar .nav-link:hover,
+        .sidebar .nav-link:hover {
+            color: #f1f5f9;
+            background-color: rgba(255, 255, 255, 0.05);
+            padding-left: 1.5rem;
+        }
+
         .sidebar .nav-link.active {
-            background-color: rgba(0, 51, 102, 0.05);
-            border-left-color: var(--unimus-secondary);
-            color: var(--unimus-secondary);
+            background-color: var(--unimus-secondary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.25);
         }
 
         .sidebar .nav-link i {
-            margin-right: 0.5rem;
-            width: 20px;
+            font-size: 1.1rem;
         }
 
         /* Main Content */
         .main-content {
             padding: 2rem;
+            background-color: #f8fafc;
+            min-height: calc(100vh - 70px);
         }
 
         /* Dashboard Cards */
         .stat-card {
             background: white;
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 1.5rem;
             margin-bottom: 1rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.02);
             border-left: 4px solid var(--unimus-primary);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .stat-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
         }
 
         .stat-card.available {
-            border-left-color: #28a745;
+            border-left-color: var(--unimus-success);
         }
 
         .stat-card.borrowed {
-            border-left-color: #ffc107;
+            border-left-color: var(--unimus-warning);
         }
 
         .stat-card.damaged {
-            border-left-color: #dc3545;
+            border-left-color: var(--unimus-danger);
         }
 
         .stat-value {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: 700;
             color: var(--unimus-primary);
         }
 
         .stat-label {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 600;
+            margin-top: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         /* Tables */
@@ -331,7 +359,7 @@
         <div class="container-fluid">
             <nav class="navbar navbar-expand-lg navbar-dark">
                 <div class="navbar-brand">
-                    <img src="https://unimus.ac.id/wp-content/uploads/2021/10/logo-unimus-new.png" alt="UNIMUS Logo">
+                    <img src="{{ asset('images/barangs/logo-unimus.png') }}" alt="UNIMUS Logo" onerror="this.onerror=null;this.src='{{ asset('images/barangs/logo-unimus.png') }}';">
                     <span>
                         SimpleLab
                         <small>Laboratory Equipment Management</small>
@@ -343,20 +371,74 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <div class="ms-auto d-flex align-items-center gap-3">
                         @auth
+                        <!-- Notification Dropdown -->
+                        @php
+                            $navbarOverdueLoans = Auth::user()->getOverdueLoans();
+                            $navbarOverdueCount = $navbarOverdueLoans->count();
+                        @endphp
+                        <div class="dropdown me-2">
+                            <button class="btn btn-outline-light btn-sm position-relative dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 20px; padding: 0.4rem 1rem;">
+                                <i class="bi bi-bell"></i>
+                                <span class="d-none d-md-inline">Notifikasi</span>
+                                @if($navbarOverdueCount > 0)
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.7rem; padding: 0.25em 0.6em;">
+                                        {{ $navbarOverdueCount }}
+                                    </span>
+                                @endif
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 py-0" style="min-width: 320px; max-height: 400px; overflow-y: auto; border-radius: 12px; margin-top: 10px;">
+                                <div class="p-3 border-bottom bg-light d-flex justify-content-between align-items-center" style="border-radius: 12px 12px 0 0;">
+                                    <span class="fw-bold text-dark"><i class="bi bi-bell-fill text-warning me-1"></i> Notifikasi</span>
+                                    @if($navbarOverdueCount > 0)
+                                        <span class="badge bg-danger-subtle text-danger">{{ $navbarOverdueCount }} Terlambat</span>
+                                    @endif
+                                </div>
+                                @forelse($navbarOverdueLoans as $loan)
+                                    <li class="border-bottom">
+                                        <div class="dropdown-item py-3 px-3" style="white-space: normal;">
+                                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                                <h6 class="mb-0 fw-bold text-danger" style="font-size: 0.9rem;">{{ $loan->barang->name }}</h6>
+                                                <span class="badge bg-danger" style="font-size: 0.7rem;">Terlambat</span>
+                                            </div>
+                                            <p class="mb-1 text-muted small" style="line-height: 1.3;">Batas waktu pengembalian telah terlewati.</p>
+                                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                                <span class="small text-muted">Tenggat: <strong>{{ $loan->due_date ? $loan->due_date->format('d/m/Y') : '-' }}</strong></span>
+                                                <span class="small fw-bold text-danger">({{ $loan->getDaysOverdue() }} hari)</span>
+                                            </div>
+                                            <a href="{{ route('equipment.return') }}" class="btn btn-danger btn-sm w-100 mt-2 text-white fw-semibold" style="font-size: 0.8rem; border-radius: 6px;">
+                                                <i class="bi bi-arrow-counterclockwise"></i> Kembalikan Sekarang
+                                            </a>
+                                        </div>
+                                    </li>
+                                @empty
+                                    <div class="text-center py-4 px-3 text-muted">
+                                        <i class="bi bi-bell-slash fs-4 d-block mb-2 text-secondary"></i>
+                                        <p class="mb-0 small">Tidak ada notifikasi keterlambatan</p>
+                                    </div>
+                                @endforelse
+                            </ul>
+                        </div>
+
+                        <!-- User Menu Dropdown -->
                         <div class="dropdown">
-                            <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" style="border-radius: 20px; padding: 0.4rem 1rem;">
                                 <i class="bi bi-person-circle"></i>
                                 {{ Auth::user()->name }}
                             </button>
+<<<<<<< HEAD
                             <ul class="dropdown-menu dropdown-menu-end">
                                 @if(Auth::user()->role !== 'admin')
                                 <li><a class="dropdown-item" href="{{ route('profile') }}"><i class="bi bi-person-badge"></i> Profil Saya</a></li>
+=======
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 8px;">
+                                <li><a class="dropdown-item" href="{{ route('profile') }}"><i class="bi bi-person"></i> Profil</a></li>
+>>>>>>> 648acad9ca4b13fb7e1a5398b085ad24c030c775
                                 <li><hr class="dropdown-divider"></li>
                                 @endif
                                 <li>
                                     <form action="{{ route('logout') }}" method="POST" style="display:inline;">
                                         @csrf
-                                        <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                                        <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right text-danger"></i> Keluar</button>
                                     </form>
                                 </li>
                             </ul>
@@ -372,7 +454,7 @@
         <div class="row">
             <!-- Sidebar Navigation -->
             @auth
-            <nav class="col-md-2 sidebar">
+            <nav class="col-md-2 sidebar d-none d-md-block">
                 <ul class="nav flex-column">
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
@@ -402,6 +484,16 @@
                     </li>
                     @endif
                     @if(Auth::user()->role === 'admin')
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('history.*') ? 'active' : '' }}" href="{{ route('history.index') }}">
+                            <i class="bi bi-clock-history"></i> Riwayat Peminjaman
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('laporan.kerusakan.*') ? 'active' : '' }}" href="{{ route('laporan.kerusakan.index') }}">
+                            <i class="bi bi-exclamation-triangle"></i> Laporan Kerusakan
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('schedule.*') ? 'active' : '' }}" href="{{ route('schedule.index') }}">
                             <i class="bi bi-calendar-week"></i> Jadwal Lab

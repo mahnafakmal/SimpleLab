@@ -57,23 +57,6 @@
         @endif
     </div>
 
-    <div class="card form-card" style="margin-top:1.5rem;">
-        <h3>Scan Masuk/Keluar Aset</h3>
-        <form action="/rfid/track" method="POST">
-            @csrf
-            <div class="input-group input-row">
-                <input type="text" name="tag_uid" class="input-custom rfid-scan-input" placeholder="Scan UID Tag RFID Aset" autocomplete="off" required>
-                <button type="button" class="btn-scan" onclick="focusAndNotify(this.closest('form').querySelector('[name=tag_uid]'), 'Klik field Tag lalu pindai tag RFID.')">Scan</button>
-                <select name="lokasi" class="input-custom" required>
-                    <option value="masuk">Masuk</option>
-                    <option value="keluar">Keluar</option>
-                </select>
-            </div>
-            <button class="btn-primary" type="submit">Update Lokasi</button>
-            <p class="hint-text">Gunakan tombol Scan untuk langsung memfokuskan field UID dan membaca tag.</p>
-        </form>
-    </div>
-
     <div class="list-card" style="margin-top:1.5rem;">
         <h3>Peminjaman Terbaru</h3>
         @if(!isset($recentLoans) || $recentLoans->isEmpty())

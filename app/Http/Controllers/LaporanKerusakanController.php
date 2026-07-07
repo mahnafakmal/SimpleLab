@@ -11,6 +11,22 @@ use Illuminate\Support\Facades\Auth;
 
 class LaporanKerusakanController extends Controller
 {
+    public function index()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            abort(403);
+        }
+
+        $barangs = Barang::orderBy('name')->get();
+        $reports = LaporanKerusakan::with('barang')
+            ->where('user_id', $user->id)
+            ->latest()
+            ->paginate(10);
+
+        return view('laporan-kerusakan.index', compact('barangs', 'reports'));
+    }
+
     public function store(Request $request)
     {
         $request->validate([

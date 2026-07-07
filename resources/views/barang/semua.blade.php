@@ -1,6 +1,6 @@
 @extends('layouts.app-enhanced')
 
-@section('title', 'Semua Alat - SimpleLab')
+@section('title', 'Semua Alat - SIMPLELAB')
 
 @section('css')
 <style>

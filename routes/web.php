@@ -4,13 +4,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RfidController;
 use App\Http\Controllers\PeminjamanController;
-use App\Http\Controllers\EquipmentReturnController;
-use App\Http\Controllers\ScheduleController;
-use App\Http\Controllers\StatisticsController;
-use App\Http\Controllers\RfidManagementController;
-use App\Http\Controllers\InventoryController;
-use App\Http\Controllers\BorrowHistoryController;
-use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminPeminjamanController;
 use App\Http\Controllers\LaporanKerusakanController;
@@ -57,6 +50,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/peminjaman/borrow', [RfidController::class, 'borrowAsset']);
 
     // Web Peminjaman & Booking endpoints
+    Route::get('/equipment/borrow', [PeminjamanController::class, 'showBorrowForm'])->name('equipment.borrow');
+    Route::get('/equipment/return', [PeminjamanController::class, 'showReturnForm'])->name('equipment.return');
     Route::post('/web/peminjaman/alat', [PeminjamanController::class, 'borrowAlat'])->name('web.peminjaman.alat');
     Route::post('/web/peminjaman/alat/dosen', [PeminjamanController::class, 'borrowAlatDosen'])->name('web.peminjaman.alat.dosen');
     Route::post('/web/pengembalian/alat/{id}', [PeminjamanController::class, 'returnAlat'])->name('web.pengembalian.alat');
@@ -70,21 +65,30 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/users/dosen', [AuthController::class, 'createDosenByAdmin'])->name('admin.users.dosen.create');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+<<<<<<< HEAD
     Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
+=======
+    Route::get('/profile', function () {
+        return redirect('/');
+    })->name('profile');
+    Route::get('/schedule', function () {
+        return redirect('/');
+    })->name('schedule.index');
+>>>>>>> 648acad9ca4b13fb7e1a5398b085ad24c030c775
     // List available items for users/admin
     Route::get('/barang/tersedia', [DashboardController::class, 'availableItems'])->name('barang.tersedia');
     Route::get('/barang/semua', [DashboardController::class, 'allItems'])->name('barang.semua');
     Route::get('/barang/dipinjam', [DashboardController::class, 'borrowedItems'])->name('barang.dipinjam');
     // Admin reports: history peminjaman
     Route::get('/admin/laporan/peminjaman', [DashboardController::class, 'reportPeminjaman'])->name('admin.laporan.peminjaman');
-    Route::get('/admin/laporan/peminjaman/export-excel', [DashboardController::class, 'exportPeminjamanExcel'])->name('admin.laporan.peminjaman.export-excel');
     Route::get('/admin/laporan/registrasi', [DashboardController::class, 'reportRegistrasi'])->name('admin.laporan.registrasi');
-    Route::get('/admin/laporan/registrasi/export-excel', [DashboardController::class, 'exportRegistrasiExcel'])->name('admin.laporan.registrasi.export-excel');
     // Admin room reports removed
 
     // Laporan Kerusakan
+    Route::get('/laporan-kerusakan', [LaporanKerusakanController::class, 'index'])->name('laporan.kerusakan.index');
     Route::post('/laporan-kerusakan', [LaporanKerusakanController::class, 'store'])->name('laporan.kerusakan.store');
     Route::post('/admin/laporan-kerusakan/{id}/status', [LaporanKerusakanController::class, 'updateStatus'])->name('admin.laporan.kerusakan.status');
+<<<<<<< HEAD
 
     // Equipment Borrowing Routes (Web Interface)
     Route::get('/equipment/borrow', [PeminjamanController::class, 'showBorrowForm'])->name('equipment.borrow');
@@ -189,6 +193,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/damage/export-pdf', [ReportController::class, 'exportDamagePdf'])->name('reports.damage-pdf');
         Route::get('/dashboard-summary', [ReportController::class, 'dashboardSummary'])->name('reports.dashboard-summary');
     });
+=======
+>>>>>>> 648acad9ca4b13fb7e1a5398b085ad24c030c775
 });
 
     // (demo routes removed)

@@ -23,29 +23,9 @@ class RfidController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'kategori' => 'required|string|max:255',
-            'rfid_uid' => 'required|string|max:255',
+            'rfid_uid' => 'required|string|max:255|unique:tag_rfids,uid',
             'image' => 'nullable|image|max:2048',
         ]);
-
-        $tag = TagRfid::where('uid', $request->rfid_uid)->first();
-
-        if (! $tag) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error', '❌ Kode RFID belum terdaftar di database! Hubungi admin untuk mendaftarkan tag RFID terlebih dahulu.');
-        }
-
-        if (! $tag->is_active) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error', '⚠️ RFID ini sudah dinonaktifkan! Hubungi admin untuk mengaktifkannya.');
-        }
-
-        if ($tag->barang_id) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error', '⚠️ RFID ini sudah terpasang pada barang lain! Lepas tag dari barang sebelumnya terlebih dahulu.');
-        }
 
         $data = [
             'name' => $request->name,
@@ -67,9 +47,9 @@ class RfidController extends Controller
 
         $barang = Barang::create($data);
 
-        $tag->update([
+        TagRfid::create([
+            'uid' => $request->rfid_uid,
             'barang_id' => $barang->id,
-            'tag_type' => 'equipment_tag',
         ]);
 
         RiwayatLog::create([
