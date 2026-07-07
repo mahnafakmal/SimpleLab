@@ -16,30 +16,32 @@
 </head>
 <body>
     <nav class="top-nav">
-        <div class="logo-area">
-            <div class="logo-icon">
-                <img src="{{ asset('images/barangs/logo-unimus.png') }}" alt="UNIMUS" style="width:44px;height:44px;object-fit:contain;border-radius:8px;">
+        <div class="nav-inner">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <img src="{{ asset('images/barangs/logo-unimus.png') }}" alt="UNIMUS" style="width:44px;height:44px;object-fit:contain;border-radius:8px;">
+                </div>
+                <div class="logo-text">
+                    <h1>SIMPLELAB</h1>
+                    <p>Laboratorium IOT Computing</p>
+                </div>
             </div>
-            <div class="logo-text">
-                <h1>SIMPLELAB</h1>
-                <p>Laboratorium IOT Computing</p>
+            <div class="nav-links" style="margin-right:16px;display:flex;align-items:center;gap:12px;">
+                @if(auth()->check() && auth()->user()->role === 'admin')
+                    <a href="{{ route('rfid.index') }}" style="color:inherit;text-decoration:none;font-weight:600;">Pengelolaan RFID</a>
+                @endif
             </div>
-        </div>
-        <div class="nav-links" style="margin-right:16px;display:flex;align-items:center;gap:12px;">
-            @if(auth()->check() && auth()->user()->role === 'admin')
-                <a href="{{ route('rfid.index') }}" style="color:inherit;text-decoration:none;font-weight:600;">Pengelolaan RFID</a>
-            @endif
-        </div>
-        <div class="user-area">
-            <span class="badge-admin">{{ ucfirst(optional(auth()->user())->role ?? 'Guest') }}</span>
-            <span class="user-email">{{ optional(auth()->user())->email ?? 'Guest' }}</span>
-            <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                @csrf
-                <button type="submit" class="logout-btn">
-                    <i data-lucide="log-out" style="width: 18px;"></i>
-                    Keluar
-                </button>
-            </form>
+            <div class="user-area">
+                <span class="badge-admin">{{ ucfirst(optional(auth()->user())->role ?? 'Guest') }}</span>
+                <span class="user-email">{{ optional(auth()->user())->email ?? 'Guest' }}</span>
+                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="logout-btn">
+                        <i data-lucide="log-out" style="width: 18px;"></i>
+                        Keluar
+                    </button>
+                </form>
+            </div>
         </div>
     </nav>
 

@@ -329,7 +329,7 @@
                     <div class="input-wrapper" style="position: relative;">
                         <i data-lucide="lock"></i>
                         <input type="password" name="password" id="password" class="form-input" placeholder="Minimal 6 karakter" required style="padding-right: 40px;">
-                        <button type="button" onclick="togglePasswordVisibility('password', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; color: var(--text-muted);">
+                        <button type="button" onclick="togglePasswordVisibility('password', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; line-height: 0; color: var(--text-muted);">
                             <i data-lucide="eye" style="width: 18px; height: 18px;"></i>
                         </button>
                     </div>
@@ -340,7 +340,7 @@
                     <div class="input-wrapper" style="position: relative;">
                         <i data-lucide="lock"></i>
                         <input type="password" name="password_confirmation" id="password_confirmation" class="form-input" placeholder="Ulangi password" required style="padding-right: 40px;">
-                        <button type="button" onclick="togglePasswordVisibility('password_confirmation', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; color: var(--text-muted);">
+                        <button type="button" onclick="togglePasswordVisibility('password_confirmation', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; line-height: 0; color: var(--text-muted);">
                             <i data-lucide="eye" style="width: 18px; height: 18px;"></i>
                         </button>
                     </div>
