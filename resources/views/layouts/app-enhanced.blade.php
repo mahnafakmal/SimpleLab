@@ -530,17 +530,15 @@
                             <i class="bi bi-arrow-counterclockwise"></i> Pengembalian Alat
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('schedule.*') || request()->routeIs('jadwal.laboratorium') ? 'active' : '' }}" href="{{ route('schedule.index') }}">
+                            <i class="bi bi-calendar-week"></i> Jadwal Lab
+                        </a>
+                    </li>
                     @if(Auth::user()->role !== 'admin')
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('profile') ? 'active' : '' }}" href="{{ route('profile') }}">
                             <i class="bi bi-person-circle"></i> Profil Saya
-                        </a>
-                    </li>
-                    @endif
-                    @if(Auth::user()->role === 'dosen')
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('jadwal.laboratorium') ? 'active' : '' }}" href="{{ route('jadwal.laboratorium') }}">
-                            <i class="bi bi-calendar-week"></i> Jadwal Lab
                         </a>
                     </li>
                     @endif
@@ -553,11 +551,6 @@
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('laporan.kerusakan.*') ? 'active' : '' }}" href="{{ route('laporan.kerusakan.index') }}">
                             <i class="bi bi-exclamation-triangle"></i> Laporan Kerusakan
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('schedule.*') ? 'active' : '' }}" href="{{ route('schedule.index') }}">
-                            <i class="bi bi-calendar-week"></i> Jadwal Lab
                         </a>
                     </li>
                     @endif

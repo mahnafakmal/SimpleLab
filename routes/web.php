@@ -9,6 +9,7 @@ use App\Http\Controllers\BorrowHistoryController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminPeminjamanController;
 use App\Http\Controllers\LaporanKerusakanController;
+use App\Http\Controllers\ScheduleController;
 use Illuminate\Support\Facades\View;
 
 // Auth Routes
@@ -76,8 +77,13 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
-    // Dosen-only: lihat jadwal lab (read-only, tidak bisa reservasi)
-    Route::get('/jadwal-lab', [DashboardController::class, 'jadwalForDosen'])->name('jadwal.laboratorium');
+    // Schedule Routes
+    Route::get('/jadwal-lab', [ScheduleController::class, 'index'])->name('schedule.index');
+    Route::get('/api/schedules', [ScheduleController::class, 'getSchedules'])->name('schedule.api');
+    Route::post('/schedule', [ScheduleController::class, 'store'])->name('schedule.store');
+    Route::put('/schedule/{id}', [ScheduleController::class, 'update'])->name('schedule.update');
+    Route::delete('/schedule/{id}', [ScheduleController::class, 'destroy'])->name('schedule.destroy');
+    Route::get('/jadwal-lab-legacy', [ScheduleController::class, 'index'])->name('jadwal.laboratorium');
     // List available items for users/admin
     Route::get('/barang/tersedia', [DashboardController::class, 'availableItems'])->name('barang.tersedia');
     Route::get('/barang/semua', [DashboardController::class, 'allItems'])->name('barang.semua');

@@ -38,6 +38,13 @@ class ScheduleController extends Controller
                 'instructor' => $schedule->dosen,
                 'room' => $schedule->ruangan ?? 'N/A',
                 'capacity' => $schedule->kapasitas ?? 'N/A',
+                'hari' => $schedule->hari,
+                'mata_kuliah' => $schedule->mata_kuliah,
+                'kelas' => $schedule->kelas,
+                'jam_mulai' => substr($schedule->jam_mulai, 0, 5),
+                'jam_selesai' => substr($schedule->jam_selesai, 0, 5),
+                'ruangan' => $schedule->ruangan,
+                'kapasitas' => $schedule->kapasitas,
             ];
         });
 
@@ -79,7 +86,7 @@ class ScheduleController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->authorize('isAdmin');
+        $this->authorize('manage-schedule');
 
         $schedule = JadwalLab::findOrFail($id);
 

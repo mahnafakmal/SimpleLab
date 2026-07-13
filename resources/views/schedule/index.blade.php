@@ -142,7 +142,7 @@
         <div id="scheduleList"></div>
     </div>
 
-    <!-- Admin Section -->
+    <!-- Admin Section: Add Schedule -->
     @if(Auth::user()->role === 'admin')
     <div class="mt-4">
         <h4 class="section-title" style="border-bottom: 2px solid var(--unimus-secondary);">⚙️ Kelola Jadwal</h4>
@@ -212,12 +212,78 @@
         </div>
     </div>
     @endif
+
+    <!-- Admin & Dosen Section: Edit Schedule -->
+    @if(in_array(Auth::user()->role, ['admin', 'dosen']))
+        <!-- Edit Schedule Modal -->
+        <div class="modal fade" id="editScheduleModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: var(--unimus-primary); color: white;">
+                        <h5 class="modal-title">Edit Jadwal</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editScheduleForm">
+                            <input type="hidden" name="id" id="edit_id">
+                            <div class="mb-3">
+                                <label class="form-label">Hari</label>
+                                <select name="hari" id="edit_hari" class="form-select" required>
+                                    <option value="">Pilih Hari</option>
+                                    <option value="Monday">Senin</option>
+                                    <option value="Tuesday">Selasa</option>
+                                    <option value="Wednesday">Rabu</option>
+                                    <option value="Thursday">Kamis</option>
+                                    <option value="Friday">Jumat</option>
+                                    <option value="Saturday">Sabtu</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mata Kuliah</label>
+                                <input type="text" name="mata_kuliah" id="edit_mata_kuliah" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Jam Mulai</label>
+                                <input type="time" name="jam_mulai" id="edit_jam_mulai" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Jam Selesai</label>
+                                <input type="time" name="jam_selesai" id="edit_jam_selesai" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Dosen</label>
+                                <input type="text" name="dosen" id="edit_dosen" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Kelas</label>
+                                <input type="text" name="kelas" id="edit_kelas" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Ruangan</label>
+                                <input type="text" name="ruangan" id="edit_ruangan" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Kapasitas</label>
+                                <input type="number" name="kapasitas" id="edit_kapasitas" class="form-control">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-primary" onclick="updateSchedule()">Simpan Perubahan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
 @endsection
 
 @section('js')
 <script>
 let allSchedules = [];
+const isAdmin = @json(Auth::user()->role === 'admin');
+const canEdit = @json(in_array(Auth::user()->role, ['admin', 'dosen']));
 
 document.addEventListener('DOMContentLoaded', function() {
     loadSchedules();
@@ -285,8 +351,19 @@ function displaySchedules() {
 }
 
 function createScheduleCard(schedule) {
+    let actionButtons = '';
+    if (canEdit) {
+        let editBtn = `<button class="btn btn-sm btn-outline-primary" onclick="openEditModal(${schedule.id})"><i class="bi bi-pencil-square"></i> Edit</button>`;
+        let deleteBtn = isAdmin ? `<button class="btn btn-sm btn-outline-danger" onclick="deleteSchedule(${schedule.id})"><i class="bi bi-trash"></i> Hapus</button>` : '';
+        actionButtons = `
+            <div class="mt-2 pt-2 border-top d-flex justify-content-end gap-2">
+                ${editBtn}
+                ${deleteBtn}
+            </div>
+        `;
+    }
     return `
-        <div class="schedule-card">
+        <div class="schedule-card" id="schedule-card-${schedule.id}">
             <div class="schedule-time"><i class="bi bi-clock"></i> ${schedule.time}</div>
             <div class="schedule-subject">${schedule.title}</div>
             <div class="schedule-detail"><i class="bi bi-person"></i> <strong>Dosen:</strong> ${schedule.instructor}</div>
@@ -295,6 +372,7 @@ function createScheduleCard(schedule) {
             <div>
                 <span class="schedule-badge">${schedule.day}</span>
             </div>
+            ${actionButtons}
         </div>
     `;
 }
@@ -328,7 +406,7 @@ function filterSchedules() {
     document.getElementById('scheduleList').innerHTML = html;
 }
 
-@if(Auth::user()->role === 'admin')
+@if(in_array(Auth::user()->role, ['admin', 'dosen']))
 function saveSchedule() {
     const form = document.getElementById('addScheduleForm');
     const formData = new FormData(form);
@@ -344,12 +422,96 @@ function saveSchedule() {
             if (response.success) {
                 alert(response.message);
                 form.reset();
-                document.querySelector('[data-bs-dismiss="modal"]').click();
+                // Close modal
+                const modalElement = document.getElementById('addScheduleModal');
+                const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+                modal.hide();
+                // Refresh list
                 loadSchedules();
             }
         },
         error: function(xhr) {
-            alert('Terjadi kesalahan: ' + xhr.responseJSON?.message);
+            alert('Terjadi kesalahan: ' + (xhr.responseJSON?.message || 'Gagal menyimpan jadwal.'));
+        }
+    });
+}
+
+function openEditModal(id) {
+    const s = allSchedules.find(item => item.id === id);
+    if (!s) return;
+    
+    document.getElementById('edit_id').value = s.id;
+    document.getElementById('edit_hari').value = s.hari;
+    document.getElementById('edit_mata_kuliah').value = s.mata_kuliah;
+    document.getElementById('edit_jam_mulai').value = s.jam_mulai;
+    document.getElementById('edit_jam_selesai').value = s.jam_selesai;
+    document.getElementById('edit_dosen').value = s.instructor;
+    document.getElementById('edit_kelas').value = s.kelas;
+    document.getElementById('edit_ruangan').value = s.room === 'N/A' ? '' : s.room;
+    document.getElementById('edit_kapasitas').value = s.capacity === 'N/A' ? '' : s.capacity;
+    
+    const modalElement = document.getElementById('editScheduleModal');
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+}
+
+function updateSchedule() {
+    const id = document.getElementById('edit_id').value;
+    const form = document.getElementById('editScheduleForm');
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData);
+    
+    $.ajax({
+        url: `/schedule/${id}`,
+        method: 'POST',
+        data: {
+            ...data,
+            _method: 'PUT'
+        },
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                alert(response.message);
+                // Close modal
+                const modalElement = document.getElementById('editScheduleModal');
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                } else {
+                    bootstrap.Modal.getOrCreateInstance(modalElement).hide();
+                }
+                // Refresh list
+                loadSchedules();
+            }
+        },
+        error: function(xhr) {
+            alert('Terjadi kesalahan: ' + (xhr.responseJSON?.message || 'Gagal memperbarui jadwal.'));
+        }
+    });
+}
+
+function deleteSchedule(id) {
+    if (!confirm('Apakah Anda yakin ingin menghapus jadwal ini?')) return;
+    
+    $.ajax({
+        url: `/schedule/${id}`,
+        method: 'POST',
+        data: {
+            _method: 'DELETE'
+        },
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                alert(response.message);
+                loadSchedules();
+            }
+        },
+        error: function(xhr) {
+            alert('Terjadi kesalahan: ' + (xhr.responseJSON?.message || 'Gagal menghapus jadwal.'));
         }
     });
 }
