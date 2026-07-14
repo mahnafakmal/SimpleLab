@@ -10,7 +10,6 @@
         gap: 1.5rem;
         margin-bottom: 2rem;
     }
-
     .overview-section {
         background: white;
         border-radius: 8px;
@@ -18,7 +17,6 @@
         margin-bottom: 2rem;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
-
     .section-title {
         font-size: 1.3rem;
         font-weight: 700;
@@ -27,7 +25,6 @@
         border-bottom: 3px solid var(--unimus-secondary);
         padding-bottom: 0.5rem;
     }
-
     .loan-item {
         background: #f8f9fa;
         padding: 1rem;
@@ -35,39 +32,71 @@
         margin-bottom: 0.75rem;
         border-left: 4px solid var(--unimus-primary);
     }
-
     .loan-item.overdue {
         border-left-color: #dc3545;
         background-color: #ffe6e6;
     }
-
     .loan-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 0.5rem;
     }
-
     .loan-equipment {
         font-weight: 600;
         color: var(--unimus-primary);
     }
-
     .loan-date {
         font-size: 0.85rem;
         color: #666;
     }
-
+    /* Admin Tab Navbar */
+    .admin-tab-nav {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        padding: 0.4rem 0.75rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e8ecf0;
+    }
+    .admin-tab-nav .tab-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.45rem 1rem;
+        border-radius: 7px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #64748b;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+    .admin-tab-nav .tab-link:hover {
+        background: #f1f5f9;
+        color: var(--unimus-primary);
+    }
+    .admin-tab-nav .tab-link.active {
+        background: var(--unimus-primary);
+        color: white;
+        font-weight: 600;
+    }
+    .admin-tab-nav .tab-link.active i {
+        color: white;
+    }
     @media (max-width: 768px) {
-        .dashboard-grid {
-            grid-template-columns: 1fr;
-        }
+        .dashboard-grid { grid-template-columns: 1fr; }
+        .admin-tab-nav { gap: 0.2rem; padding: 0.4rem; }
+        .admin-tab-nav .tab-link { padding: 0.4rem 0.6rem; font-size: 0.8rem; }
     }
 </style>
 @endsection
 
 @section('content')
-<div class="row mb-4">
+<div class="row mb-3">
     <div class="col-12">
         <div class="card bg-white border-0 shadow-sm p-4 d-flex flex-md-row justify-content-between align-items-md-center gap-3" style="border-radius: 16px;">
             <div>
@@ -87,6 +116,36 @@
         </div>
     </div>
 </div>
+
+@if(Auth::user()->role === 'admin')
+<!-- Admin Tab Navigation -->
+<div class="admin-tab-nav mb-3">
+    <a href="{{ route('dashboard') }}" class="tab-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+        <i class="bi bi-house-door"></i> Ringkasan
+    </a>
+    <a href="{{ route('barang.tersedia') }}" class="tab-link {{ request()->routeIs('barang.*') ? 'active' : '' }}">
+        <i class="bi bi-box-seam"></i> Peralatan
+    </a>
+    <a href="{{ route('equipment.borrow') }}" class="tab-link {{ request()->routeIs('equipment.borrow') ? 'active' : '' }}">
+        <i class="bi bi-hand-thumbs-up"></i> Peminjaman
+    </a>
+    <a href="{{ route('equipment.return') }}" class="tab-link {{ request()->routeIs('equipment.return') ? 'active' : '' }}">
+        <i class="bi bi-arrow-counterclockwise"></i> Pengembalian
+    </a>
+    <a href="{{ route('history.index') }}" class="tab-link {{ request()->routeIs('history.*') ? 'active' : '' }}">
+        <i class="bi bi-clock-history"></i> Riwayat
+    </a>
+    <a href="{{ route('laporan.kerusakan.index') }}" class="tab-link {{ request()->routeIs('laporan.kerusakan.*') ? 'active' : '' }}">
+        <i class="bi bi-exclamation-triangle"></i> Kerusakan
+    </a>
+    <a href="{{ route('admin.laporan.peminjaman') }}" class="tab-link {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
+        <i class="bi bi-file-earmark-bar-graph"></i> Laporan
+    </a>
+    <a href="{{ route('admin.schedule.manage') }}" class="tab-link {{ request()->routeIs('admin.schedule.manage') ? 'active' : '' }}">
+        <i class="bi bi-calendar-check"></i> Kelola Jadwal
+    </a>
+</div>
+@endif
 
 <!-- Detailed Overdue Warning -->
 @if($overdueLoans->count() > 0)
@@ -120,7 +179,8 @@
 </div>
 @endif
 
-<!-- Dashboard Statistics Grid -->
+
+
 <div class="row g-4 mb-4">
     <div class="col-sm-6 col-xl-3">
         <div class="card border-0 shadow-sm position-relative overflow-hidden" style="border-radius: 16px; border-left: 4px solid var(--unimus-success) !important;">
@@ -251,6 +311,9 @@
                 @if(Auth::user()->role === 'admin')
                 <a href="{{ route('schedule.index') }}" class="btn btn-outline-primary btn-sm">
                     <i class="bi bi-calendar"></i> Jadwal Lab
+                </a>
+                <a href="{{ route('admin.schedule.manage') }}" class="btn btn-outline-success btn-sm">
+                    <i class="bi bi-calendar-check"></i> Kelola Jadwal
                 </a>
                 @else
                 <a href="{{ route('profile') }}" class="btn btn-outline-secondary btn-sm">

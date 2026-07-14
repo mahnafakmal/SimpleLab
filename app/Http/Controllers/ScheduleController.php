@@ -23,6 +23,18 @@ class ScheduleController extends Controller
     }
 
     /**
+     * Show admin schedule management page
+     */
+    public function adminPage()
+    {
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Akses ditolak. Hanya admin yang dapat mengelola jadwal.');
+        }
+
+        return view('schedule.admin');
+    }
+
+    /**
      * Get schedules as JSON (for AJAX/Calendar)
      */
     public function getSchedules()
@@ -97,8 +109,8 @@ class ScheduleController extends Controller
             'jam_selesai' => 'sometimes|date_format:H:i',
             'dosen' => 'sometimes|string',
             'kelas' => 'sometimes|string',
-            'ruangan' => 'nullable|string',
-            'kapasitas' => 'nullable|integer|min:1',
+            'ruangan' => 'sometimes|nullable|string',
+            'kapasitas' => 'sometimes|nullable|integer|min:1',
         ]);
 
         $schedule->update($validated);

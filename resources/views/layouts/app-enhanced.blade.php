@@ -556,7 +556,12 @@
                     @endif
                     @if(Auth::user()->role === 'admin')
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('admin.*') ? 'active' : '' }}" href="{{ route('admin.laporan.peminjaman') }}">
+                        <a class="nav-link {{ request()->routeIs('admin.schedule.manage') ? 'active' : '' }}" href="{{ route('admin.schedule.manage') }}">
+                            <i class="bi bi-calendar-check"></i> Kelola Jadwal
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.*') && !request()->routeIs('admin.schedule.*') ? 'active' : '' }}" href="{{ route('admin.laporan.peminjaman') }}">
                             <i class="bi bi-file-earmark-chart"></i> Laporan
                         </a>
                     </li>

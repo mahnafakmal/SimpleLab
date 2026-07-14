@@ -83,6 +83,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/schedule', [ScheduleController::class, 'store'])->name('schedule.store');
     Route::put('/schedule/{id}', [ScheduleController::class, 'update'])->name('schedule.update');
     Route::delete('/schedule/{id}', [ScheduleController::class, 'destroy'])->name('schedule.destroy');
+    Route::get('/admin/kelola-jadwal', [ScheduleController::class, 'adminPage'])->name('admin.schedule.manage');
     Route::get('/jadwal-lab-legacy', [ScheduleController::class, 'index'])->name('jadwal.laboratorium');
     // List available items for users/admin
     Route::get('/barang/tersedia', [DashboardController::class, 'availableItems'])->name('barang.tersedia');
