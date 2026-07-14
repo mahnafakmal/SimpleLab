@@ -637,17 +637,20 @@ body {
    align with the dashboard layout even if Bootstrap JS isn't available or
    some scripts load after the partial. These rules are intentionally
    scoped to the #kelola_jadwal area to avoid altering other modals. */
+/* Stronger modal fallback and layout fixes for kelola_jadwal */
 #kelola_jadwal .modal {
-    position: fixed;
-    inset: 0;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    background: rgba(2,6,23,0.45);
-    z-index: 1080;
+    position: fixed !important;
+    inset: 0 !important;
+    display: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(2,6,23,0.45) !important;
+    z-index: 10850 !important;
 }
-#kelola_jadwal .modal.show {
-    display: flex;
+#kelola_jadwal .modal.show,
+#kelola_jadwal .modal[aria-hidden="false"],
+#kelola_jadwal .modal[aria-hidden="false"] .modal-dialog {
+    display: flex !important;
 }
 #kelola_jadwal .modal-dialog {
     max-width: 820px;
@@ -657,24 +660,378 @@ body {
     width: 100%;
     border-radius: 1rem;
     overflow: hidden;
+    box-shadow: 0 12px 40px rgba(2,6,23,0.15);
 }
 
 /* Make sure form controls inside the schedule section follow dashboard spacing */
 #kelola_jadwal .form-control,
 #kelola_jadwal .form-select {
-    border-radius: 0.7rem;
-    padding: 0.7rem 0.9rem;
+    border-radius: 0.85rem;
+    padding: 0.9rem 1rem;
 }
 
 /* Ensure action buttons and headers align visually with other dashboard sections */
 #kelola_jadwal .schedule-header-row .btn-primary {
-    padding: 0.6rem 1rem;
-    border-radius: 0.85rem;
+    padding: 0.85rem 1.25rem;
+    border-radius: 0.95rem;
 }
-#kelola_jadwal .day-header {
-    background-color: var(--primary);
-    color: #ffffff;
+
+#kelola_jadwal .schedule-overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
 }
+
+#kelola_jadwal .overview-card {
+    background: white;
+    border: 1px solid rgba(226,232,240,0.9);
+    border-radius: 1rem;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 10px 30px rgba(15,23,42,0.04);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+#kelola_jadwal .overview-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(15,23,42,0.08);
+}
+
+#kelola_jadwal .overview-card span {
+    display: block;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    font-size: 0.92rem;
+}
+
+#kelola_jadwal .overview-card strong {
+    display: block;
+    font-size: 2.15rem;
+    color: var(--text-main);
+}
+
+#kelola_jadwal .overview-card-accent {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    border-color: transparent;
+}
+
+#kelola_jadwal .overview-card-accent span {
+    color: rgba(255,255,255,0.8);
+}
+
+#kelola_jadwal .schedule-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+}
+
+#kelola_jadwal .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+#kelola_jadwal .filter-label {
+    color: var(--text-muted);
+    font-size: 0.94rem;
+    font-weight: 600;
+}
+
+#kelola_jadwal .schedule-panels {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 992px) {
+    #kelola_jadwal .schedule-panels {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+#kelola_jadwal .schedule-panel {
+    background: white;
+    border: 1px solid rgba(226,232,240,0.95);
+    border-radius: 1.25rem;
+    padding: 1.35rem;
+    box-shadow: 0 12px 32px rgba(15,23,42,0.05);
+}
+
+#kelola_jadwal .panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+#kelola_jadwal .panel-note {
+    margin: 0.5rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+#kelola_jadwal .panel-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.55rem 0.9rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+#kelola_jadwal .badge-primary {
+    background: rgba(37,99,235,0.14);
+    color: var(--primary);
+}
+
+#kelola_jadwal .badge-outline {
+    background: rgba(148,163,184,0.12);
+    color: #475569;
+}
+
+#kelola_jadwal .schedule-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+#kelola_jadwal .schedule-card {
+    background: #f8fbff;
+    border-left: 4px solid var(--primary);
+    border-radius: 1rem;
+    padding: 1.15rem;
+    box-shadow: 0 6px 20px rgba(15,23,42,0.04);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+#kelola_jadwal .schedule-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(15,23,42,0.06);
+}
+
+#kelola_jadwal .schedule-time {
+    color: var(--primary);
+    font-weight: 700;
+    margin-bottom: 0.7rem;
+}
+
+#kelola_jadwal .schedule-subject {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.55rem;
+}
+
+#kelola_jadwal .schedule-detail {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: #475569;
+    font-size: 0.95rem;
+    margin-bottom: 0.35rem;
+}
+
+#kelola_jadwal .schedule-badges {
+    margin-top: 0.95rem;
+}
+
+#kelola_jadwal .schedule-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background-color: rgba(37,99,235,0.1);
+    color: var(--primary);
+    padding: 0.3rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+#kelola_jadwal .schedule-action-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+#kelola_jadwal .schedule-action-row .btn {
+    min-width: 100px;
+}
+
+#kelola_jadwal .modal-header.bg-primary {
+    background: linear-gradient(135deg, #1d4ed8, #2563eb);
+}
+
+/* Make modal standout and backdrop less opaque for clarity */
+#kelola_jadwal .modal-backdrop {
+    background-color: rgba(2,6,23,0.55); /* slightly darker */
+}
+
+#kelola_jadwal .modal-content {
+    background: linear-gradient(180deg, #ffffff, #fbfdff);
+    border-radius: 12px;
+    padding: 0;
+    box-shadow: 0 20px 50px rgba(2,6,23,0.2);
+    border: 0;
+}
+
+#kelola_jadwal .modal-body {
+    padding: 1.25rem 1.5rem;
+}
+
+#kelola_jadwal .modal .form-label {
+    color: #334155;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+}
+
+#kelola_jadwal .modal .form-control,
+#kelola_jadwal .modal .form-select {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    border: 1px solid rgba(15,23,42,0.08);
+    background: #fff;
+    box-shadow: none;
+    font-size: 0.95rem;
+}
+
+#kelola_jadwal .modal .modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 0;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+/* Ensure modal appears above any overlay from the dashboard */
+.modal { z-index: 12050 !important; }
+.modal-backdrop { z-index: 12040 !important; }
+
+/* Force opaque white modal content for clarity */
+.modal-backdrop.show { background-color: rgba(2,6,23,0.88) !important; opacity: 1 !important; }
+.modal-backdrop { opacity: 1 !important; }
+.modal .modal-content { background: #ffffff !important; border-radius: 12px !important; opacity: 1 !important; }
+.modal .modal-body { color: #0f172a; }
+.modal { pointer-events: auto !important; }
+
+/* Improve modal form aesthetics */
+#addScheduleModal .modal-content,
+#editScheduleModal .modal-content {
+    max-width: 760px;
+    margin: 0 auto;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+#addScheduleModal .modal-body,
+#editScheduleModal .modal-body {
+    background: linear-gradient(180deg, #fbfdff 0%, #ffffff 100%);
+    padding: 1.5rem 1.75rem;
+}
+
+#addScheduleModal .row.g-3 > .col-md-6,
+#editScheduleModal .row.g-3 > .col-md-6 {
+    padding: 0.5rem 0.75rem;
+}
+
+#addScheduleModal .form-label,
+#editScheduleModal .form-label {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+#addScheduleModal .form-control,
+#editScheduleModal .form-control,
+#addScheduleModal .form-select,
+#editScheduleModal .form-select {
+    height: 44px;
+    padding: 0.55rem 0.9rem;
+    border-radius: 12px;
+    border: 1px solid rgba(15,23,42,0.08);
+    background: #ffffff;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.04);
+    transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+#addScheduleModal .form-control:focus,
+#editScheduleModal .form-control:focus,
+#addScheduleModal .form-select:focus,
+#editScheduleModal .form-select:focus {
+    outline: none;
+    border-color: rgba(37,99,235,0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(37,99,235,0.08);
+}
+
+/* Make footer buttons clearer */
+#addScheduleModal .modal-footer .btn-primary,
+#editScheduleModal .modal-footer .btn-primary {
+    background: linear-gradient(90deg,#2563eb,#1d4ed8);
+    border: 0;
+    padding: 0.6rem 1.1rem;
+    border-radius: 10px;
+    box-shadow: 0 8px 26px rgba(37,99,235,0.18);
+}
+
+#addScheduleModal .modal-footer .btn-secondary,
+#editScheduleModal .modal-footer .btn-secondary {
+    background: transparent;
+    border: 1px solid rgba(15,23,42,0.06);
+    color: #374151;
+    padding: 0.55rem 0.9rem;
+    border-radius: 10px;
+}
+
+/* Slightly increase spacing between form rows on mobile */
+@media (max-width: 575px) {
+    #addScheduleModal .row.g-3 > .col-md-6,
+    #editScheduleModal .row.g-3 > .col-md-6 {
+        padding-left: 0;
+        padding-right: 0;
+    }
+    #addScheduleModal .form-control,
+    #editScheduleModal .form-control { height: 48px; }
+}
+
+
+
+/* Layout: center schedule section and use grid for list */
+#kelola_jadwal .schedule-section {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+#kelola_jadwal #scheduleList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+#kelola_jadwal .schedule-card {
+    padding: 1rem;
+}
+
+/* Inline form appearance when modal not initialized: collapse-like card */
+#kelola_jadwal .inline-form-card {
+    background: white;
+    border-radius: 0.9rem;
+    border: 1px solid var(--border);
+    padding: 1rem;
+    margin-top: 0.5rem;
+    box-shadow: 0 6px 18px rgba(15,23,42,0.04);
+}
+
+/* Buttons spacing */
+#kelola_jadwal .schedule-action-row .btn {
+    min-width: 90px;
+}
+
 
 .input-row > .btn-scan {
     flex: 0 0 auto;

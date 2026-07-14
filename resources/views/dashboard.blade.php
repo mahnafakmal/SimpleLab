@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite('resources/css/dashboard.css')
     @else
@@ -111,6 +112,8 @@
         </div>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         // Initialize Lucide icons
         lucide.createIcons();
@@ -291,6 +294,130 @@
         <div id="stat-modal-body" style="max-height:58vh;overflow:auto;font-size:14px;color:#111827;"></div>
     </div>
     <div id="stat-modal-backdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:19999;"></div>
+    
+    <!-- Schedule modals moved here to avoid parent opacity/filters -->
+    <div class="modal fade" id="addScheduleModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Tambah Jadwal Baru</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addScheduleForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Hari</label>
+                                <select name="hari" class="form-select" required>
+                                    <option value="">Pilih Hari</option>
+                                    <option value="Monday">Senin</option>
+                                    <option value="Tuesday">Selasa</option>
+                                    <option value="Wednesday">Rabu</option>
+                                    <option value="Thursday">Kamis</option>
+                                    <option value="Friday">Jumat</option>
+                                    <option value="Saturday">Sabtu</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Kelas</label>
+                                <input type="text" name="kelas" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Mata Kuliah</label>
+                                <input type="text" name="mata_kuliah" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Dosen</label>
+                                <input type="text" name="dosen" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Jam Mulai</label>
+                                <input type="time" name="jam_mulai" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Jam Selesai</label>
+                                <input type="time" name="jam_selesai" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Ruangan</label>
+                                <input type="text" name="ruangan" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Kapasitas</label>
+                                <input type="number" name="kapasitas" class="form-control">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" onclick="saveSchedule()">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editScheduleModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Edit Jadwal</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editScheduleForm">
+                        <input type="hidden" name="id" id="edit_id">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Hari</label>
+                                <select name="hari" id="edit_hari" class="form-select" required>
+                                    <option value="">Pilih Hari</option>
+                                    <option value="Monday">Senin</option>
+                                    <option value="Tuesday">Selasa</option>
+                                    <option value="Wednesday">Rabu</option>
+                                    <option value="Thursday">Kamis</option>
+                                    <option value="Friday">Jumat</option>
+                                    <option value="Saturday">Sabtu</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Kelas</label>
+                                <input type="text" name="kelas" id="edit_kelas" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Mata Kuliah</label>
+                                <input type="text" name="mata_kuliah" id="edit_mata_kuliah" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Dosen</label>
+                                <input type="text" name="dosen" id="edit_dosen" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Jam Mulai</label>
+                                <input type="time" name="jam_mulai" id="edit_jam_mulai" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Jam Selesai</label>
+                                <input type="time" name="jam_selesai" id="edit_jam_selesai" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Ruangan</label>
+                                <input type="text" name="ruangan" id="edit_ruangan" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Kapasitas</label>
+                                <input type="number" name="kapasitas" id="edit_kapasitas" class="form-control">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" onclick="updateSchedule()">Simpan Perubahan</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         (function(){
