@@ -55,6 +55,7 @@
                 </div>
             </div>
             <p class="subtitle">Kelola peralatan, peminjaman, dan pengguna Laboratorium IOT Computing</p>
+            {{-- Removed top Kelola Jadwal shortcut button to keep the page clean. --}}
         </div>
 
         @if(isset($overdueLoans) && $overdueLoans->count() > 0)
@@ -76,6 +77,7 @@
         <div class="tabs-nav">
             @if(auth()->check() && auth()->user()->role === 'admin')
                 <div class="tab-item" onclick="switchTab('admin_peminjaman', this)">Kelola Peminjaman</div>
+            <div class="tab-item" onclick="switchTab('kelola_jadwal', this)">Kelola Jadwal</div>
             @endif
             <div class="tab-item active" onclick="switchTab('ringkasan', this)">Ringkasan</div>
             <div class="tab-item" onclick="switchTab('peralatan', this)">Peralatan</div>
@@ -97,6 +99,7 @@
         @include('dashboard.sections.peminjaman')
         @include('dashboard.sections.scan')
         @include('dashboard.sections.pengguna')
+        @include('dashboard.sections.kelola_jadwal')
         <div id="admin_peminjaman" class="tab-content">
             @include('dashboard.sections.admin_peminjaman')
             <div style="margin-top: 2rem;">
