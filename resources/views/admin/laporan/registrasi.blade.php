@@ -13,8 +13,8 @@
 <body>
     <nav class="top-nav">
         <div class="logo-area">
-            <div class="logo-icon"><i data-lucide="flask-conical"></i></div>
-            <div class="logo-text"><h1>SimpleLab</h1><p>Admin - Laporan</p></div>
+            <div class="logo-icon"><img src="{{ asset('images/barangs/logo-unimus.png') }}" alt="Unimus Logo" style="width:44px;height:44px;object-fit:contain;border-radius:8px;"></div>
+            <div class="logo-text"><h1>Unimus</h1><p>Admin - Laporan</p></div>
         </div>
         <div class="user-area">
             <span class="badge-admin">Admin</span>
@@ -25,9 +25,12 @@
 
     <main class="main-container">
         <div class="header-section">
-            <div class="title-row">
-                <h2>Laporan Registrasi Pengguna</h2>
-                <span class="meta-count">{{ $registrations->count() }} entri</span>
+            <div class="title-row" style="gap:1rem;align-items:center;justify-content:space-between;">
+                <div>
+                    <h2>Laporan Registrasi Pengguna</h2>
+                    <span class="meta-count">{{ $registrations->count() }} entri</span>
+                </div>
+                <a href="{{ route('admin.laporan.registrasi.excel') }}" class="btn btn-primary">Export Excel</a>
             </div>
             <p class="subtitle">Daftar akun yang baru terdaftar.</p>
         </div>

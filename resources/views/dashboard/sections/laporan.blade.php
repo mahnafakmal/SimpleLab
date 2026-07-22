@@ -18,13 +18,13 @@
                         <td>Laporan Peminjaman Barang</td>
                         <td>Riwayat peminjaman barang oleh pengguna</td>
                         <td>{{ isset($allLoans) ? $allLoans->count() : '-' }}</td>
-                        <td><a href="{{ route('admin.laporan.peminjaman') }}" class="px-3 py-1 bg-blue-600 text-white rounded">Lihat</a></td>
+                        <td><a href="{{ route('admin.laporan.peminjaman') }}" class="btn btn-primary">Lihat</a></td>
                     </tr>
                     <tr>
                         <td>Laporan Registrasi</td>
                         <td>Daftar akun pengguna baru</td>
                         <td>{{ isset($registrationsCount) ? $registrationsCount : '-' }}</td>
-                        <td><a href="{{ route('admin.laporan.registrasi') }}" class="px-3 py-1 bg-green-600 text-white rounded">Lihat</a></td>
+                        <td><a href="{{ route('admin.laporan.registrasi') }}" class="btn btn-primary">Lihat</a></td>
                     </tr>
                 </tbody>
             </table>

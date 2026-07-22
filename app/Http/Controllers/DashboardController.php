@@ -10,6 +10,8 @@ use App\Models\TagRfid;
 use App\Models\User;
 use App\Models\LaporanKerusakan;
 use App\Models\RiwayatLog;
+use App\Exports\PeminjamanReportExport;
+use App\Exports\RegistrasiReportExport;
 use App\Notifications\EquipmentOverdueNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -181,6 +183,20 @@ class DashboardController extends Controller
         return view('admin.laporan.peminjaman', compact('peminjaman'));
     }
 
+    public function exportPeminjamanExcel()
+    {
+        $user = Auth::user();
+        if (! $user || $user->role !== 'admin') {
+            abort(403);
+        }
+
+        $peminjaman = Peminjaman::with(['barang', 'user', 'tagRfid'])->orderBy('created_at', 'desc')->get();
+        $export = new PeminjamanReportExport($peminjaman);
+        $file = $export->getTempFile();
+
+        return response()->download($file, 'laporan-peminjaman-' . now()->format('Y-m-d_His') . '.xlsx')->deleteFileAfterSend(true);
+    }
+
     /**
      * Admin report: registrations (user accounts created)
      */
@@ -196,6 +212,22 @@ class DashboardController extends Controller
             ->get();
 
         return view('admin.laporan.registrasi', compact('registrations'));
+    }
+
+    public function exportRegistrasiExcel()
+    {
+        $user = Auth::user();
+        if (! $user || $user->role !== 'admin') {
+            abort(403);
+        }
+
+        $registrations = RiwayatLog::where('event', 'like', 'Registrasi%')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $export = new RegistrasiReportExport($registrations);
+        $file = $export->getTempFile();
+
+        return response()->download($file, 'laporan-registrasi-' . now()->format('Y-m-d_His') . '.xlsx')->deleteFileAfterSend(true);
     }
 
     /**

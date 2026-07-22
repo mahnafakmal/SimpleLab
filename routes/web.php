@@ -91,7 +91,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/barang/dipinjam', [DashboardController::class, 'borrowedItems'])->name('barang.dipinjam');
     // Admin reports: history peminjaman
     Route::get('/admin/laporan/peminjaman', [DashboardController::class, 'reportPeminjaman'])->name('admin.laporan.peminjaman');
+    Route::get('/admin/laporan/peminjaman/excel', [DashboardController::class, 'exportPeminjamanExcel'])->name('admin.laporan.peminjaman.excel');
     Route::get('/admin/laporan/registrasi', [DashboardController::class, 'reportRegistrasi'])->name('admin.laporan.registrasi');
+    Route::get('/admin/laporan/registrasi/excel', [DashboardController::class, 'exportRegistrasiExcel'])->name('admin.laporan.registrasi.excel');
 
     // Laporan Kerusakan
     Route::get('/laporan-kerusakan', [LaporanKerusakanController::class, 'index'])->name('laporan.kerusakan.index');
